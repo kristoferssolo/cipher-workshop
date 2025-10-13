@@ -11,6 +11,7 @@ des = { path = "des" }
 rand = "0.9"
 rstest = "0.26"
 thiserror = "2"
+zeroize = { version = "1.8", features = ["derive"] }
 
 [workspace.lints.clippy]
 pedantic = "warn"

@@ -28,7 +28,7 @@ pub trait BlockLike: Sized + Copy + Clone {
 /// Minimal trait describing a fixed-size key-like value.
 ///
 /// Concrete key types (e.g. `Secret<const N: usize>`) should implement this.
-pub trait KeyLike: Sized + Copy + Clone {
+pub trait KeyLike: Sized {
     /// Size of the key in bytes.
     const SIZE: usize;
 

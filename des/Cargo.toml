@@ -5,6 +5,8 @@ authors = ["Kristofers Solo <dev@kristofers.xyz>"]
 edition = "2024"
 
 [dependencies]
+cipher-core.workspace = true
+zeroize.workspace = true
 
 [dev-dependencies]
 claims.workspace = true
