@@ -25,60 +25,73 @@ pub enum CryptoError {
 
 impl CryptoError {
     /// Creates a key size error
-    pub fn invalid_key_size(expected: usize, actual: usize) -> Self {
-        CryptoError::InvalidKeySize { expected, actual }
+    #[inline]
+    #[must_use]
+    pub const fn invalid_key_size(expected: usize, actual: usize) -> Self {
+        Self::InvalidKeySize { expected, actual }
     }
 
     /// Creates a block size error  
-    pub fn invalid_block_size(expected: usize, actual: usize) -> Self {
-        CryptoError::InvalidBlockSize { expected, actual }
+    #[inline]
+    #[must_use]
+    pub const fn invalid_block_size(expected: usize, actual: usize) -> Self {
+        Self::InvalidBlockSize { expected, actual }
     }
 
     /// Creates an invalid padding error
-    pub fn invalid_padding() -> Self {
-        CryptoError::InvalidPadding
+    #[inline]
+    #[must_use]
+    pub const fn invalid_padding() -> Self {
+        Self::InvalidPadding
     }
 
     /// Creates a plaintext length error
-    pub fn invalid_plaintext_length(actual: usize) -> Self {
-        CryptoError::InvalidPlaintextLength { actual }
+    #[inline]
+    #[must_use]
+    pub const fn invalid_plaintext_length(actual: usize) -> Self {
+        Self::InvalidPlaintextLength { actual }
     }
 
     /// Returns true if this is a key size error
-    pub fn is_key_error(&self) -> bool {
-        matches!(self, CryptoError::InvalidKeySize { .. })
+    #[inline]
+    #[must_use]
+    pub const fn is_key_error(&self) -> bool {
+        matches!(self, Self::InvalidKeySize { .. })
     }
 
     /// Returns true if this is a block size error
-    pub fn is_block_error(&self) -> bool {
-        matches!(self, CryptoError::InvalidBlockSize { .. })
+    #[inline]
+    #[must_use]
+    pub const fn is_block_error(&self) -> bool {
+        matches!(self, Self::InvalidBlockSize { .. })
     }
 
     /// Returns true if this is a size-related error
-    pub fn is_size_error(&self) -> bool {
-        self.is_key_error()
-            || self.is_block_error()
-            || matches!(self, CryptoError::InvalidSize { .. })
+    #[must_use]
+    pub const fn is_size_error(&self) -> bool {
+        self.is_key_error() || self.is_block_error() || matches!(self, Self::InvalidSize { .. })
     }
 
     /// Returns the expected size for size-related errors
-    pub fn expected_size(&self) -> Option<usize> {
+    #[must_use]
+    pub const fn expected_size(&self) -> Option<usize> {
         match self {
-            CryptoError::InvalidKeySize { expected, .. } => Some(*expected),
-            CryptoError::InvalidBlockSize { expected, .. } => Some(*expected),
-            CryptoError::InvalidSize { expected, .. } => Some(*expected),
+            Self::InvalidKeySize { expected, .. }
+            | Self::InvalidBlockSize { expected, .. }
+            | Self::InvalidSize { expected, .. } => Some(*expected),
             _ => None,
         }
     }
 
     /// Returns the actual size for size-related errors
-    pub fn actual_size(&self) -> Option<usize> {
+    #[must_use]
+    pub const fn actual_size(&self) -> Option<usize> {
         match self {
-            CryptoError::InvalidKeySize { actual, .. } => Some(*actual),
-            CryptoError::InvalidBlockSize { actual, .. } => Some(*actual),
-            CryptoError::InvalidSize { actual, .. } => Some(*actual),
-            CryptoError::InvalidPlaintextLength { actual } => Some(*actual),
-            _ => None,
+            Self::InvalidKeySize { actual, .. }
+            | Self::InvalidBlockSize { actual, .. }
+            | Self::InvalidSize { actual, .. }
+            | Self::InvalidPlaintextLength { actual } => Some(*actual),
+            Self::InvalidPadding => None,
         }
     }
 }
