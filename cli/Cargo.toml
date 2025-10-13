@@ -1,0 +1,20 @@
+[package]
+name = "cli"
+version = "0.1.0"
+authors = ["Kristofers Solo <dev@kristofers.xyz>"]
+edition = "2024"
+
+[dependencies]
+aes = { workspace = true, optional = true }
+anyhow.workspace = true
+clap = { version = "4.5", features = ["derive"] }
+des = { workspace = true, optional = true }
+thiserror.workspace = true
+
+[features]
+default = ["des", "aes"]
+des = ["dep:des"]
+aes = ["dep:aes"]
+
+[lints]
+workspace = true

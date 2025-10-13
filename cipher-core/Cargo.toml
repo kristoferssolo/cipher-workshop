@@ -1,0 +1,12 @@
+[package]
+name = "cipher-core"
+version = "0.1.0"
+authors = ["Kristofers Solo <dev@kristofers.xyz>"]
+edition = "2024"
+
+[dependencies]
+anyhow.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

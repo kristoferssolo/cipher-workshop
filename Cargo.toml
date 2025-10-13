@@ -1,0 +1,18 @@
+[workspace]
+resolver = "2"
+members = ["aes", "cipher-core", "cli", "des", "tui"]
+
+[workspace.dependencies]
+aes = { path = "aes" }
+anyhow = "1"
+cipher-core = { path = "cipher-core" }
+claims = "0.8"
+des = { path = "des" }
+rand = "0.9"
+rstest = "0.26"
+thiserror = "2"
+
+[workspace.lints.clippy]
+pedantic = "warn"
+nursery = "warn"
+unwrap_used = "warn"
