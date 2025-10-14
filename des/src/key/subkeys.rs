@@ -1,4 +1,7 @@
-use crate::key::Subkey;
+use crate::{
+    key::{key56::Key56, subkey::Subkey},
+    utils::permutate,
+};
 use cipher_core::{CryptoError, CryptoResult, KeyLike};
 use std::fmt::Debug;
 
@@ -49,39 +52,28 @@ impl Subkeys {
         let key_bytes = key.as_bytes();
         let key_len = key_bytes.len();
 
-        if key_len != 8 {
-            return Err(CryptoError::invalid_key_size(8, key_len));
-        }
+        let key_arr = key_bytes
+            .try_into()
+            .map_err(|_| CryptoError::invalid_key_size(8, key_len))?;
 
-        // Produce 56 bits after PC-1 as two 28-bit halves C0 and D0 (MSB-first bit order)
-        let (c_bits, d_bits) = PC1.iter().enumerate().fold(
-            ([0; 28], [0; 28]),
-            |(mut c_bits, mut d_bits), (idx, &pos)| {
-                let bit = get_bit_be(key_bytes, pos);
-                if idx < 28 {
-                    c_bits[idx] = bit;
-                } else {
-                    d_bits[idx - 28] = bit;
-                }
-                (c_bits, d_bits)
-            },
-        );
+        let key_be = u64::from_be_bytes(key_arr);
 
-        let mut c = bits_to_u28(&c_bits);
-        let mut d = bits_to_u28(&d_bits);
+        let cd_56 = pc1(key_be); // 56-bit: C0 + D0
+        let (c, d) = cd_56.split();
 
-        let out = ROUND_ROTATIONS.iter().enumerate().fold(
-            [const { Subkey::zero() }; 16],
-            |mut acc, (round, &shifts)| {
-                c = rotate_left_28(c, shifts.into());
-                d = rotate_left_28(d, shifts.into());
-                let sub48 = pc2_from_cd(c, d);
-                acc[round] = Subkey::from(sub48);
-                acc
-            },
-        );
+        let subkeys = ROUND_ROTATIONS
+            .iter()
+            .map(|&shift_amount| {
+                let cn = c.rotate_left(shift_amount); // C_(n-1) -> C_n
+                let dn = d.rotate_left(shift_amount); // D_(n-1) -> D_n
+                let combined = [cn, dn].into();
+                pc2(&combined)
+            })
+            .collect::<Vec<Subkey>>()
+            .try_into()
+            .expect("Exactly 16 subkeys expected");
 
-        Ok(Self(out))
+        Ok(Self(subkeys))
     }
 
     pub(crate) fn as_u64_array(&self) -> [u64; 16] {
@@ -95,50 +87,12 @@ impl Subkeys {
     }
 }
 
-fn pc2_from_cd(c: u32, d: u32) -> u64 {
-    let combined: [u8; 56] = (0..28)
-        .flat_map(|idx| {
-            let bit_idx = 27 - idx;
-            [((c >> bit_idx) & 1) as u8, ((d >> bit_idx) & 1) as u8]
-        })
-        .collect::<Vec<_>>()
-        .try_into()
-        .expect("");
-
-    let out = PC2.iter().fold(0, |acc, &pos| {
-        let bit = u64::from(combined[(pos as usize).saturating_sub(1)]);
-        (acc << 1) | bit
-    });
-
-    out & 0xFFFF_FFFF_FFFF
+fn pc1(key: u64) -> Key56 {
+    permutate(key, 64, 56, &PC1).into()
 }
 
-const U28_MASK: u32 = 0x0FFF_FFFF;
-
-#[inline]
-#[must_use]
-const fn get_bit_be(bytes: &[u8], pos: u8) -> u8 {
-    let p = (pos as usize).saturating_sub(1);
-    let byte_idx = p / 8;
-    let bit_idx = 7 - (p % 8);
-    (bytes[byte_idx] >> bit_idx) & 1
-}
-
-#[inline]
-#[must_use]
-fn bits_to_u28(bits: &[u8; 28]) -> u32 {
-    let mut v = 0;
-    for &b in bits {
-        v = (v << 1) | (u32::from(b));
-    }
-    v & U28_MASK
-}
-
-#[inline]
-#[must_use]
-const fn rotate_left_28(v: u32, n: u32) -> u32 {
-    let v = v & U28_MASK;
-    ((v << n) | (v >> (28 - n))) & U28_MASK
+fn pc2(key: &Key56) -> Subkey {
+    permutate(key.as_int(), 56, 48, &PC2).into()
 }
 
 impl Debug for Subkeys {
@@ -150,5 +104,50 @@ impl Debug for Subkeys {
 impl Default for Subkeys {
     fn default() -> Self {
         Self::new_empty()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rstest::rstest;
+
+    const TEST_KEY: u64 = 0x1334_5779_9BBC_DFF1;
+    const TEST_PC1_RESULT: u64 = 0x00F0_CCAA_F556_678F;
+
+    #[rstest]
+    #[case(TEST_KEY, TEST_PC1_RESULT)]
+    fn pc1_permutaion_correct(#[case] key: u64, #[case] expected: u64) {
+        let result = pc1(key);
+
+        assert_eq!(
+            result.as_int(),
+            expected,
+            "PC1 permutation failed. Expected {expected:08X}, got {:08X}",
+            result.as_int()
+        );
+    }
+
+    #[rstest]
+    #[case(0x00F0_CCAA_F556_678F, 0xCB3D_8B0E_17F5)] // K_0
+    #[case(0x00E1_9955_FAAC_CF1E, 0x1B02_EFFC_7072)] // K_1
+    #[case(0x00C3_32AB_F559_9E3D, 0x79AE_D9DB_C9E5)] // K_2
+    #[case(0x000C_CAAF_F566_78F5, 0x55FC_8A42_CF99)] // K_3
+    #[case(0x0033_2ABF_C599_E3D5, 0x72AD_D6DB_351D)] // K_4
+    #[case(0x00CC_AAFF_0667_8F55, 0x7CEC_07EB_53A8)] // K_5
+    #[case(0x0032_ABFC_399E_3D55, 0x63A5_3E50_7B2F)] // K_6
+    #[case(0x00CA_AFF0_C678_F556, 0xEC84_B7F6_18BC)] // K_7
+    #[case(0x002A_BFC3_39E3_D559, 0xF78A_3AC1_3BFB)] // K_8
+    #[case(0x0055_7F86_63C7_AAB3, 0xE0DB_EBED_E781)] // K_9
+    #[case(0x0055_FE19_9F1E_AACC, 0xB1F3_47BA_464F)] // K_10
+    #[case(0x0057_F866_5C7A_AB33, 0x215F_D3DE_D386)] // K_11
+    #[case(0x005F_E199_51EA_ACCF, 0x7571_F594_67E9)] // K_12
+    #[case(0x007F_8665_57AA_B33C, 0x97C5_D1FA_BA41)] // K_13
+    #[case(0x00FE_1995_5EAA_CCF1, 0x5F43_B7F2_E73A)] // K_14
+    #[case(0x00F8_6655_7AAB_33C7, 0xBF91_8D3D_3F0A)] // K_15
+    #[case(0x00F0_CCAA_F556_678F, 0xCB3D_8B0E_17F5)] // K_16
+    fn pc2_permutaion(#[case] before: u64, #[case] after: u64) {
+        let result = pc2(&before.into());
+        assert_eq!(result.as_int(), after, "PC2 permutation failed");
     }
 }

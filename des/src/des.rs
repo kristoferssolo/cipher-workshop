@@ -1,5 +1,5 @@
-use crate::key::subkeys::Subkeys;
-use cipher_core::KeyLike;
+use crate::key::Subkeys;
+use cipher_core::{CryptoResult, KeyLike};
 
 #[derive(Debug)]
 pub struct Des {
@@ -7,8 +7,8 @@ pub struct Des {
 }
 
 impl Des {
-    #[must_use]
-    pub fn new(_key: impl KeyLike) -> Self {
-        todo!()
+    pub fn new(key: &impl KeyLike) -> CryptoResult<Self> {
+        let subkeys = Subkeys::from_key(key)?;
+        Ok(Self { subkeys })
     }
 }
