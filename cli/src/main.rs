@@ -7,15 +7,20 @@ use des::Des;
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    let des = Des::new(args.key.as_64());
 
     match args.operation {
-        Operation::Encrypt => {
-            let ciphertext = des.encrypt(&args.text.to_be_bytes())?;
+        Operation::Encrypt { key, text } => {
+            let des = Des::new(key.as_64());
+            let ciphertext = des.encrypt(&text.to_be_bytes())?;
             println!("{ciphertext:016X}");
         }
-        Operation::Decrypt { output_format } => {
-            let plaintext = des.decrypt(&args.text.to_be_bytes())?;
+        Operation::Decrypt {
+            key,
+            text,
+            output_format,
+        } => {
+            let des = Des::new(key.as_64());
+            let plaintext = des.decrypt(&text.to_be_bytes())?;
             match output_format.unwrap_or_default() {
                 OutputFormat::Binary => println!("{plaintext:064b}"),
                 OutputFormat::Octal => println!("{plaintext:022o}"),

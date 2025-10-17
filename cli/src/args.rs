@@ -2,7 +2,6 @@ use clap::{Parser, Subcommand, ValueEnum};
 use std::{
     fmt::{Display, LowerHex, UpperHex},
     fs::read_to_string,
-    num::IntErrorKind,
     path::PathBuf,
     str::FromStr,
 };
@@ -25,7 +24,7 @@ pub enum ValueError {
     #[error("Invalid number format: {0}")]
     InvalidFormat(String),
 
-    #[error("Invalid byte string length: expected no more than, found {0}")]
+    #[error("Invalid byte string length: expected no more than 8, found {0}")]
     InvalidByteStringLength(usize),
 
     #[error("String-to-u64 conversion error: {0}")]
@@ -37,23 +36,30 @@ pub enum ValueError {
 pub struct Args {
     #[command(subcommand)]
     pub operation: Operation,
-
-    /// Key used to encrypt/decrypt data (64-bit number, string, or path to file)
-    #[arg(short, long, value_parser = Value::from_str, required = true)]
-    pub key: Value,
-
-    /// The text to encrypt/decrypt data (64-bit number, string, or path to file)
-    #[arg(value_name = "TEXT", value_parser = Value::from_str, required = true)]
-    pub text: Value,
 }
 
-#[derive(Debug, Clone, Subcommand, Default)]
+#[derive(Debug, Clone, Subcommand)]
 pub enum Operation {
     /// Encrypt data
-    #[default]
-    Encrypt,
+    Encrypt {
+        /// Key used to encrypt/decrypt data (64-bit number, string, or path to file)
+        #[arg(short, long, value_parser = Value::from_str, required = true)]
+        key: Value,
+
+        /// The text to encrypt/decrypt data (64-bit number, string, or path to file)
+        #[arg(value_name = "TEXT", value_parser = Value::from_str, required = true)]
+        text: Value,
+    },
     /// Decrypt data
     Decrypt {
+        /// Key used to encrypt/decrypt data (64-bit number, string, or path to file)
+        #[arg(short, long, value_parser = Value::from_str, required = true)]
+        key: Value,
+
+        /// The text to encrypt/decrypt data (64-bit number, string, or path to file)
+        #[arg(value_name = "TEXT", value_parser = Value::from_str, required = true)]
+        text: Value,
+
         /// Output format for decrypted data
         #[arg(short = 'f', long, value_enum)]
         output_format: Option<OutputFormat>,
@@ -131,55 +137,41 @@ fn parse_string_to_u64(s: &str) -> Result<u64, ValueError> {
     }
 
     // Hexadecimal with 0x/0X prefix
-    if trimmed.starts_with("0x") || trimmed.starts_with("0X") {
-        let hex_str = &trimmed[2..].trim_start_matches('0');
-        if hex_str.is_empty() {
-            return Ok(0); // 0x000 ->
-        }
-        return u64::from_str_radix(hex_str, 16)
-            .map_err(|e| ValueError::InvalidFormat(format!("Hex parsing failed: {e}")));
+    if let Some(hex_str) = trimmed
+        .strip_prefix("0X")
+        .or_else(|| trimmed.strip_prefix("0x"))
+    {
+        return parse_radix(hex_str, 16, "Hex");
     }
 
     // Binary with 0b/0B prefix
-    if trimmed.starts_with("0b") || trimmed.starts_with("0B") {
-        let bin_str = &trimmed[2..].trim_start_matches('0');
-        if bin_str.is_empty() {
-            return Ok(0); // 0b000 -> 0
-        }
-        if !bin_str.chars().all(|ch| ch == '0' || ch == '1') {
-            return Err(ValueError::InvalidFormat(
-                "Binary string contains invalid characters".into(),
-            ));
-        }
-        return u64::from_str_radix(bin_str, 2)
-            .map_err(|e| ValueError::InvalidFormat(format!("Binary parsing failed: {e}")));
+    if let Some(bin_str) = trimmed
+        .strip_prefix("0b")
+        .or_else(|| trimmed.strip_prefix("0B"))
+    {
+        return parse_radix(bin_str, 2, "Binary");
     }
 
     // 8-character ASCII string conversion to u64
-    if trimmed.len() <= 8 {
-        return ascii_string_to_u64(trimmed);
+    if trimmed.len() > 8 {
+        return Err(ValueError::InvalidByteStringLength(trimmed.len()));
     }
 
-    // Regular decimal parsing
-    trimmed.parse::<u64>().map_err(|e| {
-        ValueError::InvalidFormat(match e.kind() {
-            IntErrorKind::InvalidDigit => "contains invalid digits".into(),
-            IntErrorKind::PosOverflow => "number too large for u64".into(),
-            IntErrorKind::NegOverflow => "negative numbers not allowed".into(),
-            IntErrorKind::Empty => "empty string".into(),
-            IntErrorKind::Zero => "invalid zero".into(),
-            _ => format!("parsing error: {e}"),
-        })
-    })
+    ascii_string_to_u64(trimmed)
+}
+
+fn parse_radix(s: &str, radix: u32, name: &str) -> Result<u64, ValueError> {
+    let trimmed = s.trim_start_matches('0');
+    if trimmed.is_empty() {
+        return Ok(0);
+    }
+
+    u64::from_str_radix(trimmed, radix)
+        .map_err(|e| ValueError::InvalidFormat(format!("{name} parsing failed: {e}")))
 }
 
 fn ascii_string_to_u64(s: &str) -> Result<u64, ValueError> {
-    if s.len() > 8 {
-        return Err(ValueError::InvalidByteStringLength(s.len()));
-    }
-
-    // Ensure all characters are valid ASCII (0-127)
-    if !s.bytes().all(|b| b <= 127) {
+    if !s.is_ascii() {
         return Err(ValueError::ConversionError(
             "String contains non-ASCII characters".into(),
         ));
