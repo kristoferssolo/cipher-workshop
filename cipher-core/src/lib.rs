@@ -1,5 +1,9 @@
 mod error;
 mod traits;
+mod types;
 
-pub use error::{CryptoError, CryptoResult};
-pub use traits::{BlockCipher, BlockLike, CipherContext, KeyInit, KeyLike, StreamCipher};
+pub use {
+    error::{CipherError, CipherResult},
+    traits::BlockCipher,
+    types::CipherAction,
+};

@@ -1,25 +1,15 @@
 use crate::{
-    key::{key56::Key56, subkey::Subkey},
+    constants::{PC1, PC2, ROUND_ROTATIONS},
+    key::{Key, cd56::CD56, key56::Key56, subkey::Subkey},
     utils::permutate,
 };
-use cipher_core::{CryptoError, CryptoResult, KeyLike};
-use std::fmt::Debug;
-
-/// Key Permutation table (64 to 56 bits).
-const PC1: [u8; 56] = [
-    57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18, 10, 2, 59, 51, 43, 35, 27, 19, 11, 3, 60,
-    52, 44, 36, 63, 55, 47, 39, 31, 23, 15, 7, 62, 54, 46, 38, 30, 22, 14, 6, 61, 53, 45, 37, 29,
-    21, 13, 5, 28, 20, 12, 4,
-];
-
-/// Compression Permutation table (56 to 48 bits).
-const PC2: [u8; 48] = [
-    14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26, 8, 16, 7, 27, 20, 13, 2, 41, 52,
-    31, 37, 47, 55, 30, 40, 51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32,
-];
-
-/// Number of Key Bits Shifted per Round
-const ROUND_ROTATIONS: [u8; 16] = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1];
+use cipher_core::CipherResult;
+use std::{
+    fmt::Debug,
+    iter::Rev,
+    ops::Index,
+    slice::{Iter, IterMut},
+};
 
 /// Container for all 16 round subkeys; zeroized on drop.
 pub struct Subkeys([Subkey; 16]);
@@ -38,36 +28,21 @@ impl Subkeys {
     }
 
     #[inline]
-    pub fn set(&mut self, idx: usize, sk: Subkey) {
-        self.0[idx] = sk;
-    }
-
-    #[inline]
     #[must_use]
     pub fn get(&self, idx: usize) -> Option<&Subkey> {
         self.0.get(idx)
     }
 
-    pub fn from_key(key: &impl KeyLike) -> CryptoResult<Self> {
-        let key_bytes = key.as_bytes();
-        let key_len = key_bytes.len();
-
-        let key_arr = key_bytes
-            .try_into()
-            .map_err(|_| CryptoError::invalid_key_size(8, key_len))?;
-
-        let key_be = u64::from_be_bytes(key_arr);
-
-        let cd_56 = pc1(key_be); // 56-bit: C0 + D0
-        let (c, d) = cd_56.split();
+    /// # Errors
+    /// # Panics
+    pub fn from_key(key: &Key) -> CipherResult<Self> {
+        let mut cd56 = pc1(key).split(); // 56-bit: C0 + D0
 
         let subkeys = ROUND_ROTATIONS
             .iter()
             .map(|&shift_amount| {
-                let cn = c.rotate_left(shift_amount); // C_(n-1) -> C_n
-                let dn = d.rotate_left(shift_amount); // D_(n-1) -> D_n
-                let combined = [cn, dn].into();
-                pc2(&combined)
+                cd56.rotate_left(shift_amount);
+                pc2(&cd56)
             })
             .collect::<Vec<Subkey>>()
             .try_into()
@@ -76,23 +51,63 @@ impl Subkeys {
         Ok(Self(subkeys))
     }
 
-    pub(crate) fn as_u64_array(&self) -> [u64; 16] {
-        self.0
-            .iter()
-            .enumerate()
-            .fold([0; 16], |mut out, (idx, sk)| {
-                out[idx] = sk.as_int();
-                out
-            })
+    /// Borrowing forward iterator.
+    pub fn iter(&self) -> Iter<'_, Subkey> {
+        self.0.iter()
+    }
+
+    /// Borrowing reverse iterator.
+    pub fn iter_rev(&self) -> Rev<Iter<'_, Subkey>> {
+        self.0.iter().rev()
+    }
+
+    /// Mutable iterator if you need it.
+    pub fn iter_mut(&mut self) -> IterMut<'_, Subkey> {
+        self.0.iter_mut()
+    }
+
+    /// Consume `self` and return a new `Subkeys` with reversed order.
+    #[must_use]
+    pub const fn reversed(mut self) -> Self {
+        self.0.reverse();
+        self
     }
 }
 
-fn pc1(key: u64) -> Key56 {
-    permutate(key, 64, 56, &PC1).into()
+#[inline]
+#[must_use]
+fn pc1(key: &Key) -> Key56 {
+    permutate(key.as_u64(), 64, 56, &PC1).into()
 }
 
-fn pc2(key: &Key56) -> Subkey {
-    permutate(key.as_int(), 56, 48, &PC2).into()
+#[inline]
+#[must_use]
+fn pc2(cd: &CD56) -> Subkey {
+    let key56 = Key56::from(cd);
+    permutate(key56.as_int(), 56, 48, &PC2).into()
+}
+
+impl<'a> IntoIterator for &'a Subkeys {
+    type Item = &'a Subkey;
+    type IntoIter = Iter<'a, Subkey>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+impl<'a> IntoIterator for &'a mut Subkeys {
+    type Item = &'a mut Subkey;
+    type IntoIter = IterMut<'a, Subkey>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter_mut()
+    }
+}
+
+impl Index<usize> for Subkeys {
+    type Output = Subkey;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
 }
 
 impl Debug for Subkeys {
@@ -113,18 +128,14 @@ mod tests {
     use rstest::rstest;
 
     const TEST_KEY: u64 = 0x1334_5779_9BBC_DFF1;
-    const TEST_PC1_RESULT: u64 = 0x00F0_CCAA_F556_678F;
 
     #[rstest]
-    #[case(TEST_KEY, TEST_PC1_RESULT)]
+    #[case(TEST_KEY, 0x00F0_CCAA_F556_678F)]
     fn pc1_permutaion_correct(#[case] key: u64, #[case] expected: u64) {
-        let result = pc1(key);
-
+        let result = pc1(&key.into()).as_int();
         assert_eq!(
-            result.as_int(),
-            expected,
-            "PC1 permutation failed. Expected {expected:08X}, got {:08X}",
-            result.as_int()
+            result, expected,
+            "PC1 permutation failed. Expected {expected:08X}, got {result:08X}",
         );
     }
 
@@ -146,8 +157,12 @@ mod tests {
     #[case(0x00FE_1995_5EAA_CCF1, 0x5F43_B7F2_E73A)] // K_14
     #[case(0x00F8_6655_7AAB_33C7, 0xBF91_8D3D_3F0A)] // K_15
     #[case(0x00F0_CCAA_F556_678F, 0xCB3D_8B0E_17F5)] // K_16
-    fn pc2_permutaion(#[case] before: u64, #[case] after: u64) {
-        let result = pc2(&before.into());
-        assert_eq!(result.as_int(), after, "PC2 permutation failed");
+    fn pc2_permutaion(#[case] before: u64, #[case] expected: u64) {
+        let key56 = Key56::from(before).split();
+        let result = pc2(&key56).as_int();
+        assert_eq!(
+            result, expected,
+            "PC2 permutation failed. Expected {expected:016X}, got {result:016X}"
+        );
     }
 }

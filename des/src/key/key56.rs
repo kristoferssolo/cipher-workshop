@@ -1,4 +1,7 @@
-use crate::{key::half28::Half28, secret_int};
+use crate::{
+    key::{cd56::CD56, half28::Half28},
+    secret_int,
+};
 
 secret_int! {
     /// 56-bit key after PC-1 (lower 56 bits used).
@@ -7,10 +10,10 @@ secret_int! {
 
 impl Key56 {
     #[must_use]
-    pub fn split(&self) -> (Half28, Half28) {
+    pub fn split(&self) -> CD56 {
         let c = ((self.0 >> 28) & 0x0FFF_FFFF) as u32;
         let d = (self.0 & 0x0FFF_FFFF) as u32;
-        (c.into(), d.into())
+        CD56::new(c, d)
     }
 
     #[must_use]
@@ -21,16 +24,14 @@ impl Key56 {
     }
 }
 
-impl From<[Half28; 2]> for Key56 {
-    fn from(keys: [Half28; 2]) -> Self {
-        let [left, right] = keys;
-        Self::from_half28(&left, &right)
+impl From<Key56> for CD56 {
+    fn from(key56: Key56) -> Self {
+        key56.split()
     }
 }
 
-impl From<&[Half28; 2]> for Key56 {
-    fn from(keys: &[Half28; 2]) -> Self {
-        let [left, right] = keys;
-        Self::from_half28(left, right)
+impl From<&Key56> for CD56 {
+    fn from(key56: &Key56) -> Self {
+        key56.split()
     }
 }

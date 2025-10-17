@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 #[derive(Debug, Error, Clone, Copy, PartialEq, Eq)]
-pub enum CryptoError {
+pub enum CipherError {
     /// Invalid key size for the cipher
     #[error("invalid key size: expected {expected} bytes, got {actual}")]
     InvalidKeySize { expected: usize, actual: usize },
@@ -23,7 +23,7 @@ pub enum CryptoError {
     InvalidSize { expected: usize, actual: usize },
 }
 
-impl CryptoError {
+impl CipherError {
     /// Creates a key size error
     #[inline]
     #[must_use]
@@ -97,4 +97,4 @@ impl CryptoError {
 }
 
 /// Type alias for clean Result types
-pub type CryptoResult<T> = core::result::Result<T, CryptoError>;
+pub type CipherResult<T> = core::result::Result<T, CipherError>;

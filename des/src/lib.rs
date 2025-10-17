@@ -1,3 +1,4 @@
+mod block;
 pub(crate) mod constants;
 mod des;
 mod key;

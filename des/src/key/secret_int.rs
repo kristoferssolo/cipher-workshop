@@ -24,8 +24,6 @@ macro_rules! secret_int {
         $vis struct $name($int);
 
         impl $name {
-            /// Number of meaningful bits.
-            pub const BITS: usize = $bits;
             /// Mask to restrict the underlying integer to valid bits.
             pub const MASK: $int = $mask;
 
@@ -41,11 +39,6 @@ macro_rules! secret_int {
             #[must_use]
             pub const fn as_int(&self) -> $int {
                 self.0 & Self::MASK
-            }
-
-            /// Zero value.
-            pub const fn zero() -> Self {
-                Self(0)
             }
         }
 

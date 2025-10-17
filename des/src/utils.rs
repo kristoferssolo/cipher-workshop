@@ -16,29 +16,13 @@ pub fn permutate(
     output_bit_amount: u64,
     position_table: &[u8],
 ) -> u64 {
-    debug_assert!(position_table.len() as u64 == output_bit_amount);
-    debug_assert!(output_bit_amount <= 64);
-    debug_assert!(input_bit_amount <= 64);
-
     position_table
         .iter()
         .enumerate()
         .fold(0, |acc, (idx, &input_pos_1based)| {
-            // Convert 1-based DES position to 0-based input position (MSB first)
-            let input_pos_from_msb_0based = u64::from(input_pos_1based).saturating_sub(1);
-            let input_bit_pos = input_bit_amount
-                .saturating_sub(1)
-                .saturating_sub(input_pos_from_msb_0based);
-
-            // Extract bit from input
+            let input_bit_pos = input_bit_amount - u64::from(input_pos_1based);
             let bit_value = (input >> input_bit_pos) & 1;
-
-            // Extract bit from u64 at the correct position
-            let output_bit_pos = output_bit_amount
-                .saturating_sub(1)
-                .saturating_sub(idx as u64);
-
-            let shifted_bit = bit_value << output_bit_pos;
-            acc | shifted_bit
+            let output_bit_pos = output_bit_amount - 1 - (idx as u64);
+            acc | (bit_value << output_bit_pos)
         })
 }
