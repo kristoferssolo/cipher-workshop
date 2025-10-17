@@ -19,7 +19,6 @@ fn main() -> anyhow::Result<()> {
             match output_format.unwrap_or_default() {
                 OutputFormat::Binary => println!("{plaintext:064b}"),
                 OutputFormat::Octal => println!("{plaintext:022o}"),
-                OutputFormat::Decimal => println!("{plaintext}"),
                 OutputFormat::Hex => println!("{plaintext:016X}"),
                 OutputFormat::Text => println!("{plaintext}"),
             }

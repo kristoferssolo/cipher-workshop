@@ -67,8 +67,6 @@ pub enum OutputFormat {
     /// Octal output (fixed typo)
     Octal,
     /// Decimal output
-    Decimal,
-    /// Hexadecimal output
     #[default]
     Hex,
     /// Text output (ASCII)
