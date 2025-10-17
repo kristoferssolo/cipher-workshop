@@ -7,6 +7,7 @@ edition = "2024"
 [dependencies]
 aes = { workspace = true, optional = true }
 anyhow.workspace = true
+cipher-core.workspace = true
 des = { workspace = true, optional = true }
 ratatui = "0.29"
 thiserror.workspace = true
