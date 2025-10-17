@@ -44,7 +44,7 @@ impl AsRef<[u8]> for Key {
 
 impl From<u64> for Key {
     fn from(key: u64) -> Self {
-        Self(key.to_le_bytes())
+        Self(key.to_be_bytes())
     }
 }
 

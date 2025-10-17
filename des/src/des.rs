@@ -58,6 +58,7 @@ where
     for subkey in subkeys {
         feistel(&mut lr, subkey);
     }
+    lr.swap();
     lr.into()
 }
 

@@ -116,7 +116,7 @@ fn encrypt_decrypt_roundtrip(
 ) {
     let des = assert_ok!(Des::new(key), "Valid DES key");
 
-    let ciphertext = assert_ok!(des.encrypt(&plaintext.to_le_bytes()));
+    let ciphertext = assert_ok!(des.encrypt(&plaintext.to_be_bytes()));
     let dectrypted = assert_ok!(des.decrypt(&ciphertext));
     let re_ciphertext = assert_ok!(des.encrypt(&dectrypted));
 
@@ -126,7 +126,7 @@ fn encrypt_decrypt_roundtrip(
 
     assert_eq!(
         ciphertext_u64, expected_ciphertext,
-        "Encyption failed. Expected 0x{expected_ciphertext:016X}, got 0x{decrypted_u64:016X}"
+        "Encyption failed. Expected 0x{expected_ciphertext:016X}, got 0x{ciphertext_u64:016X}"
     );
     assert_eq!(
         decrypted_u64, plaintext,
