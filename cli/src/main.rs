@@ -1,26 +1,34 @@
 mod args;
+mod cipher;
+mod error;
+mod output;
+mod value;
 
-use crate::args::{Args, Operation, OutputFormat};
+use crate::{
+    args::{Args, OperationChoice},
+    output::OutputFormat,
+};
 use cipher_core::BlockCipher;
 use clap::Parser;
-use des::Des;
 
 fn main() -> anyhow::Result<()> {
-    let args = Args::parse();
+    let Args {
+        operation,
+        algorithm,
+        key,
+        text,
+        output_format,
+    } = Args::parse();
 
-    match args.operation {
-        Operation::Encrypt { key, text } => {
-            let des = Des::new(key.as_64());
-            let ciphertext = des.encrypt(&text.to_be_bytes())?;
+    match operation {
+        OperationChoice::Encrypt => {
+            let cipher = algorithm.get_cipher(key);
+            let ciphertext = cipher.encrypt(&text.to_be_bytes())?;
             println!("{ciphertext:016X}");
         }
-        Operation::Decrypt {
-            key,
-            text,
-            output_format,
-        } => {
-            let des = Des::new(key.as_64());
-            let plaintext = des.decrypt(&text.to_be_bytes())?;
+        OperationChoice::Decrypt => {
+            let cipher = algorithm.get_cipher(key);
+            let plaintext = cipher.decrypt(&text.to_be_bytes())?;
             match output_format.unwrap_or_default() {
                 OutputFormat::Binary => println!("{plaintext:064b}"),
                 OutputFormat::Octal => println!("{plaintext:022o}"),

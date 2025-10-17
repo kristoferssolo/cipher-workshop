@@ -31,6 +31,21 @@ impl From<[u8; 8]> for Key {
     }
 }
 
+impl From<&[u8]> for Key {
+    fn from(value: &[u8]) -> Self {
+        let mut bytes = [0; 8];
+        let len = value.len().min(8);
+        bytes[..len].copy_from_slice(&value[..len]);
+        Self(bytes)
+    }
+}
+
+impl From<u64> for Key {
+    fn from(key: u64) -> Self {
+        Self(key.to_be_bytes())
+    }
+}
+
 impl From<Key> for [u8; 8] {
     fn from(key: Key) -> Self {
         key.0
@@ -40,12 +55,6 @@ impl From<Key> for [u8; 8] {
 impl AsRef<[u8]> for Key {
     fn as_ref(&self) -> &[u8] {
         &self.0
-    }
-}
-
-impl From<u64> for Key {
-    fn from(key: u64) -> Self {
-        Self(key.to_be_bytes())
     }
 }
 

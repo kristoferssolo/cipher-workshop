@@ -37,6 +37,10 @@ impl Des {
 impl BlockCipher for Des {
     const BLOCK_SIZE: usize = 8;
 
+    fn from_key(key: &[u8]) -> Self {
+        Self::new(key)
+    }
+
     fn transform_impl(
         &self,
         block: &[u8],

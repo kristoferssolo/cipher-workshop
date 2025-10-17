@@ -8,6 +8,8 @@ use crate::{CipherAction, CipherError, CipherOutput, CipherResult};
 pub trait BlockCipher: Sized {
     const BLOCK_SIZE: usize;
 
+    fn from_key(key: &[u8]) -> Self;
+
     /// Core cipher transformation (must be implemented by concrete types).
     ///
     /// # Errors
