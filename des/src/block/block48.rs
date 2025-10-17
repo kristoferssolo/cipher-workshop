@@ -1,24 +1,11 @@
+use crate::{block::Block6, key::Subkey, secret_block};
 use std::{array, ops::BitXor};
 
-use crate::{block::Block6, key::Subkey};
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Block48(u64);
+secret_block! {
+    pub struct Block48(u64, 48, 0xFFFF_FFFF_FFFF);
+}
 
 impl Block48 {
-    const MASK: u64 = 0xFFFF_FFFF_FFFF;
-    #[inline]
-    #[must_use]
-    pub const fn new(value: u64) -> Self {
-        Self(value & Self::MASK)
-    }
-
-    #[inline]
-    #[must_use]
-    pub const fn as_u64(self) -> u64 {
-        self.0
-    }
-
     #[must_use]
     pub fn as_block6_array(self) -> [Block6; 8] {
         array::from_fn(|idx| {
@@ -26,12 +13,6 @@ impl Block48 {
             let six_bits = u8::try_from((self.0 >> start_bit) & 0x3F).expect("6-bit number");
             Block6::new(six_bits)
         })
-    }
-}
-
-impl From<u64> for Block48 {
-    fn from(value: u64) -> Self {
-        Self::new(value)
     }
 }
 

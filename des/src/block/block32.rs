@@ -1,34 +1,9 @@
 use std::ops::BitXor;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Block32(u32);
+use crate::secret_block;
 
-impl Block32 {
-    const MASK: u32 = 0xFFFF_FFFF;
-
-    #[inline]
-    #[must_use]
-    pub const fn new(value: u32) -> Self {
-        Self(value)
-    }
-
-    #[inline]
-    #[must_use]
-    pub const fn as_u32(self) -> u32 {
-        self.0
-    }
-
-    #[inline]
-    #[must_use]
-    pub const fn as_u64(self) -> u64 {
-        self.0 as u64
-    }
-}
-
-impl From<u32> for Block32 {
-    fn from(value: u32) -> Self {
-        Self(value)
-    }
+secret_block! {
+    pub struct Block32(u32, 32, 0xFFFF_FFFF);
 }
 
 impl From<u64> for Block32 {

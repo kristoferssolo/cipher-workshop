@@ -1,25 +1,14 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Block6(u8);
+use crate::secret_block;
+
+secret_block! {
+    pub struct Block6(u8, 6, 0x3F);
+}
 
 impl Block6 {
-    const MASK: u8 = 0x3F;
-
-    #[inline]
-    #[must_use]
-    pub const fn new(value: u8) -> Self {
-        Self(value & Self::MASK)
-    }
-
     #[inline]
     #[must_use]
     pub const fn zero() -> Self {
         Self(0)
-    }
-
-    #[inline]
-    #[must_use]
-    pub const fn as_u8(self) -> u8 {
-        self.0
     }
 
     #[inline]

@@ -2,33 +2,33 @@
 ///
 /// Usage:
 /// ```
-/// secret_key! {
+/// secret_block! {
 ///     /// docs...
-///     pub struct Subkey(u64, 48, 0x0000_FFFF_FFFF_FFFFu64);
+///     pub struct Block48(u64, 48, 0x0000_FFFF_FFFF_FFFFu64);
 /// }
 /// ```
 #[macro_export]
-macro_rules! secret_key {
+macro_rules! secret_block {
     (
     $(#[$meta:meta])*
     $vis:vis struct $name:ident ( $int:tt, $bits:expr, $mask:expr );
 ) => {
         $(#[$meta])*
-        #[derive(::zeroize::ZeroizeOnDrop, Default)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         $vis struct $name($int);
 
         impl $name {
             /// Mask to restrict the underlying integer to valid bits.
             pub const MASK: $int = $mask;
 
-            secret_key!(@conversions_as $int);
-            secret_key!(@conversions_from $int $int);
-        }
-
-        impl ::std::fmt::Debug for $name {
-            fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-                f.write_str(concat!(stringify!($name), "[REDACTED]"))
+            #[inline]
+            #[must_use]
+            pub const fn new(value: $int) -> Self {
+                Self(value & Self::MASK)
             }
+
+            secret_block!(@conversions_as $int);
+            secret_block!(@conversions_from $int $int);
         }
 
         impl From<$int> for $name {
@@ -47,7 +47,7 @@ macro_rules! secret_key {
             self.0 as u8
         }
 
-        secret_key!(@conversions_as u16);
+        secret_block!(@conversions_as u16);
     };
     (@conversions_as u16) => {
         /// Return value as u16
@@ -58,7 +58,7 @@ macro_rules! secret_key {
             self.0 as u16
         }
 
-        secret_key!(@conversions_as u32);
+        secret_block!(@conversions_as u32);
     };
     (@conversions_as u32) => {
         /// Return value as u32
@@ -69,7 +69,7 @@ macro_rules! secret_key {
             self.0 as u32
         }
 
-        secret_key!(@conversions_as u64);
+        secret_block!(@conversions_as u64);
     };
     (@conversions_as u64) => {
         /// Return value as u64
@@ -99,7 +99,7 @@ macro_rules! secret_key {
             Self(key as $int & Self::MASK)
         }
 
-        secret_key!(@conversions_from u8 $int);
+        secret_block!(@conversions_from u8 $int);
     };
     (@conversions_from u32 $int:tt) => {
         /// Create value from u32
@@ -110,7 +110,7 @@ macro_rules! secret_key {
             Self(key as $int & Self::MASK)
         }
 
-        secret_key!(@conversions_from u16 $int);
+        secret_block!(@conversions_from u16 $int);
     };
     (@conversions_from u64 $int:tt) => {
         /// Create value from u64
@@ -121,6 +121,6 @@ macro_rules! secret_key {
             Self(key & Self::MASK)
         }
 
-        secret_key!(@conversions_from u32 $int);
+        secret_block!(@conversions_from u32 $int);
     }
 }

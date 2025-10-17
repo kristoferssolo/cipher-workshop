@@ -1,21 +1,10 @@
-use crate::block::lr::LR;
+use crate::block::{lr::LR, secret_block};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Block64(u64);
+secret_block! {
+    pub struct Block64(u64, 64, 0xFFFF_FFFF_FFFF_FFFF);
+}
 
 impl Block64 {
-    #[inline]
-    #[must_use]
-    pub const fn new(value: u64) -> Self {
-        Self(value)
-    }
-
-    #[inline]
-    #[must_use]
-    pub const fn as_u64(self) -> u64 {
-        self.0
-    }
-
     #[inline]
     #[must_use]
     pub const fn from_be_bytes(bytes: [u8; 8]) -> Self {
@@ -44,12 +33,6 @@ impl Block64 {
 impl From<[u8; 8]> for Block64 {
     fn from(bytes: [u8; 8]) -> Self {
         Self::from_be_bytes(bytes)
-    }
-}
-
-impl From<u64> for Block64 {
-    fn from(value: u64) -> Self {
-        Self::new(value)
     }
 }
 
