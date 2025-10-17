@@ -137,3 +137,57 @@ fn encrypt_decrypt_roundtrip(
         "Re-encyption failed. Expected 0x{expected_ciphertext:016X}, got 0x{re_ciphertext_u64:016X}"
     );
 }
+
+#[rstest]
+#[case(0x0101010101010101)]
+#[case(0xFEFEFEFEFEFEFEFE)]
+#[case(0xE001E001E001E001)]
+fn weak_keys(#[case] key: u64) {
+    let des = Des::new(key);
+    let plaintext = TEST_PLAINTEXT;
+    let ciphertext = assert_ok!(des.encrypt(&plaintext.to_be_bytes()));
+    let decrypted = assert_ok!(des.decrypt(&ciphertext));
+
+    let decrypted_u64 = u64::from_be_bytes(decrypted.try_into().expect("8 bytes"));
+
+    assert_eq!(
+        decrypted_u64, plaintext,
+        "Weak key {key:016X} failed roundtrip"
+    );
+}
+
+#[test]
+fn all_zero_paintext() {
+    let des = Des::new(TEST_KEY);
+
+    let plain = 0u64;
+    let encrypted = assert_ok!(des.encrypt(&plain.to_be_bytes()));
+    let decrypted = assert_ok!(des.decrypt(&encrypted));
+    let decrypted_u64 = u64::from_be_bytes(decrypted.try_into().expect("8 bytes"));
+    assert_eq!(decrypted_u64, plain, "All-zero plaintext failed");
+}
+
+#[test]
+fn all_one_paintext() {
+    let des = Des::new(TEST_KEY);
+
+    let plain = u64::MAX;
+    let encrypted = assert_ok!(des.encrypt(&plain.to_be_bytes()));
+    let decrypted = assert_ok!(des.decrypt(&encrypted));
+    let decrypted_u64 = u64::from_be_bytes(decrypted.try_into().expect("8 bytes"));
+    assert_eq!(decrypted_u64, plain, "All-one plaintext failed");
+}
+
+#[test]
+fn different_inputs() {
+    let des = Des::new(TEST_KEY);
+
+    let plain1 = 1u64;
+    let plain2 = 2u64;
+    let enc1 = assert_ok!(des.encrypt(&plain1.to_be_bytes()));
+    let enc2 = assert_ok!(des.encrypt(&plain2.to_be_bytes()));
+    assert_ne!(
+        enc1, enc2,
+        "Encryption not deterministic for different inputs"
+    );
+}
