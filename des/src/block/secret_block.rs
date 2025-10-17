@@ -21,6 +21,16 @@ macro_rules! secret_block {
             /// Mask to restrict the underlying integer to valid bits.
             pub const MASK: $int = $mask;
 
+            /// Calculate the number of hex digits needed for the bit width
+            const fn hex_width() -> usize {
+                ($bits as usize).div_ceil(4)
+            }
+
+            /// Calculate the number of octal digits needed for the bit width
+            const fn octal_width() -> usize {
+                ($bits as usize).div_ceil(3)
+            }
+
             #[inline]
             #[must_use]
             pub const fn new(value: $int) -> Self {
@@ -36,6 +46,37 @@ macro_rules! secret_block {
                 Self(v & Self::MASK)
             }
         }
+
+        impl From<$name> for $int {
+            fn from(value: $name) -> $int {
+                value.0
+            }
+        }
+
+        impl std::fmt::UpperHex for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{:0width$X}", self.0, width = Self::hex_width())
+            }
+        }
+
+        impl std::fmt::LowerHex for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{:0width$x}", self.0, width = Self::hex_width())
+            }
+        }
+
+        impl std::fmt::Octal for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{:0width$o}", self.0, width = Self::octal_width())
+            }
+        }
+
+        impl std::fmt::Binary for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, "{:0width$b}", self.0, width = $bits)
+            }
+        }
+
     };
     // Helper: generate conversions_as based on type
     (@conversions_as u8) => {

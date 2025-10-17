@@ -1,4 +1,4 @@
-use cipher_core::BlockCipher;
+use cipher_core::{BlockCipher, CipherOutput};
 use claims::assert_ok;
 use des::Des;
 use rstest::rstest;
@@ -120,9 +120,9 @@ fn encrypt_decrypt_roundtrip(
     let dectrypted = assert_ok!(des.decrypt(&ciphertext));
     let re_ciphertext = assert_ok!(des.encrypt(&dectrypted));
 
-    let ciphertext_u64 = u64::from_be_bytes(ciphertext.try_into().expect("8 bytes"));
-    let decrypted_u64 = u64::from_be_bytes(dectrypted.try_into().expect("8 bytes"));
-    let re_ciphertext_u64 = u64::from_be_bytes(re_ciphertext.try_into().expect("8 bytes"));
+    let ciphertext_u64 = cipher_block_to_u64(ciphertext);
+    let decrypted_u64 = cipher_block_to_u64(dectrypted);
+    let re_ciphertext_u64 = cipher_block_to_u64(re_ciphertext);
 
     assert_eq!(
         ciphertext_u64, expected_ciphertext,
@@ -148,7 +148,7 @@ fn weak_keys(#[case] key: u64) {
     let ciphertext = assert_ok!(des.encrypt(&plaintext.to_be_bytes()));
     let decrypted = assert_ok!(des.decrypt(&ciphertext));
 
-    let decrypted_u64 = u64::from_be_bytes(decrypted.try_into().expect("8 bytes"));
+    let decrypted_u64 = cipher_block_to_u64(decrypted);
 
     assert_eq!(
         decrypted_u64, plaintext,
@@ -163,7 +163,7 @@ fn all_zero_paintext() {
     let plain = 0u64;
     let encrypted = assert_ok!(des.encrypt(&plain.to_be_bytes()));
     let decrypted = assert_ok!(des.decrypt(&encrypted));
-    let decrypted_u64 = u64::from_be_bytes(decrypted.try_into().expect("8 bytes"));
+    let decrypted_u64 = cipher_block_to_u64(decrypted);
     assert_eq!(decrypted_u64, plain, "All-zero plaintext failed");
 }
 
@@ -174,7 +174,7 @@ fn all_one_paintext() {
     let plain = u64::MAX;
     let encrypted = assert_ok!(des.encrypt(&plain.to_be_bytes()));
     let decrypted = assert_ok!(des.decrypt(&encrypted));
-    let decrypted_u64 = u64::from_be_bytes(decrypted.try_into().expect("8 bytes"));
+    let decrypted_u64 = cipher_block_to_u64(decrypted);
     assert_eq!(decrypted_u64, plain, "All-one plaintext failed");
 }
 
@@ -190,4 +190,9 @@ fn different_inputs() {
         enc1, enc2,
         "Encryption not deterministic for different inputs"
     );
+}
+
+fn cipher_block_to_u64(block: CipherOutput) -> u64 {
+    let bytes = block.as_slice().try_into().expect("8 bytes");
+    u64::from_be_bytes(bytes)
 }

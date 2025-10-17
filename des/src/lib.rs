@@ -4,4 +4,4 @@ mod des;
 mod key;
 pub(crate) mod utils;
 
-pub use {des::Des, key::Subkeys};
+pub use des::Des;

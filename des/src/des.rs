@@ -41,7 +41,7 @@ impl BlockCipher for Des {
         &self,
         block: &[u8],
         action: cipher_core::CipherAction,
-    ) -> cipher_core::CipherResult<Vec<u8>> {
+    ) -> cipher_core::CipherResult<cipher_core::CipherOutput> {
         let block_arr: [u8; Self::BLOCK_SIZE] = block
             .try_into()
             .map_err(|_| CipherError::invalid_block_size(Self::BLOCK_SIZE, block.len()))?;

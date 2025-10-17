@@ -4,6 +4,7 @@ use zeroize::ZeroizeOnDrop;
 /// 64-bit Key for DES
 #[derive(ZeroizeOnDrop)]
 pub struct Key([u8; 8]);
+
 impl Key {
     #[inline]
     #[must_use]
