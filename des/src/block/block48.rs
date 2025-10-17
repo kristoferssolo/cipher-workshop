@@ -45,27 +45,27 @@ impl BitXor for Block48 {
 impl BitXor<Subkey> for Block48 {
     type Output = Self;
     fn bitxor(self, rhs: Subkey) -> Self::Output {
-        Self(self.0 ^ rhs.as_int())
+        Self(self.0 ^ rhs.as_u64())
     }
 }
 
 impl BitXor<&Subkey> for Block48 {
     type Output = Self;
     fn bitxor(self, rhs: &Subkey) -> Self::Output {
-        Self(self.0 ^ rhs.as_int())
+        Self(self.0 ^ rhs.as_u64())
     }
 }
 
 impl BitXor<Subkey> for &Block48 {
     type Output = Block48;
     fn bitxor(self, rhs: Subkey) -> Self::Output {
-        Block48(self.0 ^ rhs.as_int())
+        Block48(self.0 ^ rhs.as_u64())
     }
 }
 
 impl BitXor<&Subkey> for &Block48 {
     type Output = Block48;
     fn bitxor(self, rhs: &Subkey) -> Self::Output {
-        Block48(self.0 ^ rhs.as_int())
+        Block48(self.0 ^ rhs.as_u64())
     }
 }

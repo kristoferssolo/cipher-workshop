@@ -4,16 +4,33 @@ use crate::{
     key::{Key, Subkey, Subkeys},
     utils::permutate,
 };
-use cipher_core::{BlockCipher, CipherAction, CipherError, CipherResult};
+use cipher_core::{BlockCipher, CipherAction, CipherError};
 
 pub struct Des {
     subkeys: Subkeys,
 }
 
 impl Des {
-    pub fn new(key: impl Into<Key>) -> CipherResult<Self> {
-        let subkeys = Subkeys::from_key(&key.into())?;
-        Ok(Self { subkeys })
+    /// Creates a new DES cipher with the given key.
+    ///
+    /// # Arguments
+    ///
+    /// - `key` - An 8-byte key (64 bits). Any type implementing `Into<Key>` is accepted
+    ///   (e.g., `&[u8; 8]`, `u64`).
+    ///
+    /// # Errors
+    ///
+    /// `CipherError::InvalidKeySize` if the key is not exactly 8 bytes.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use des::Des;
+    /// let des = Des::new(0x1334_5779_9BBC_DFF1u64).expect("Valid key");
+    /// ```
+    pub fn new(key: impl Into<Key>) -> Self {
+        let subkeys = Subkeys::from_key(&key.into());
+        Self { subkeys }
     }
 }
 

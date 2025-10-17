@@ -114,7 +114,7 @@ fn encrypt_decrypt_roundtrip(
     #[case] expected_ciphertext: u64,
     #[case] key: u64,
 ) {
-    let des = assert_ok!(Des::new(key), "Valid DES key");
+    let des = Des::new(key);
 
     let ciphertext = assert_ok!(des.encrypt(&plaintext.to_be_bytes()));
     let dectrypted = assert_ok!(des.decrypt(&ciphertext));

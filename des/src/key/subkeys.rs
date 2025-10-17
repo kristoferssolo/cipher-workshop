@@ -3,8 +3,8 @@ use crate::{
     key::{Key, cd56::CD56, key56::Key56, subkey::Subkey},
     utils::permutate,
 };
-use cipher_core::CipherResult;
 use std::{
+    array,
     fmt::Debug,
     iter::Rev,
     ops::Index,
@@ -12,79 +12,52 @@ use std::{
 };
 
 /// Container for all 16 round subkeys; zeroized on drop.
+#[derive(Default)]
 pub struct Subkeys([Subkey; 16]);
 
 impl Subkeys {
-    #[inline]
+    /// Generates 16 round subkeys from the given key.
     #[must_use]
-    pub const fn new_empty() -> Self {
-        Self([const { Subkey::zero() }; 16])
-    }
-
-    #[inline]
-    #[must_use]
-    pub const fn as_array(&self) -> &[Subkey; 16] {
-        &self.0
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn get(&self, idx: usize) -> Option<&Subkey> {
-        self.0.get(idx)
-    }
-
-    /// # Errors
-    /// # Panics
-    pub fn from_key(key: &Key) -> CipherResult<Self> {
+    pub fn from_key(key: &Key) -> Self {
         let mut cd56 = pc1(key).split(); // 56-bit: C0 + D0
 
-        let subkeys = ROUND_ROTATIONS
-            .iter()
-            .map(|&shift_amount| {
-                cd56.rotate_left(shift_amount);
-                pc2(&cd56)
-            })
-            .collect::<Vec<Subkey>>()
-            .try_into()
-            .expect("Exactly 16 subkeys expected");
+        let subkeys = array::from_fn(|idx| {
+            cd56.rotate_left(ROUND_ROTATIONS[idx]);
+            pc2(&cd56)
+        });
 
-        Ok(Self(subkeys))
+        Self(subkeys)
     }
 
-    /// Borrowing forward iterator.
+    /// Returns an iterator over the subkeys.
     pub fn iter(&self) -> Iter<'_, Subkey> {
         self.0.iter()
     }
 
-    /// Borrowing reverse iterator.
+    /// Returns a reverse iterator over the subkeys.
     pub fn iter_rev(&self) -> Rev<Iter<'_, Subkey>> {
         self.0.iter().rev()
     }
 
-    /// Mutable iterator if you need it.
+    /// Returns a mutable iterator over the subkeys.
     pub fn iter_mut(&mut self) -> IterMut<'_, Subkey> {
         self.0.iter_mut()
     }
-
-    /// Consume `self` and return a new `Subkeys` with reversed order.
-    #[must_use]
-    pub const fn reversed(mut self) -> Self {
-        self.0.reverse();
-        self
-    }
 }
 
+/// Initial permutation (PC-1): 64-bit -> 56-bit.
 #[inline]
 #[must_use]
 fn pc1(key: &Key) -> Key56 {
     permutate(key.as_u64(), 64, 56, &PC1).into()
 }
 
+/// Compression permutation (PC-2): 56-bit -> 48-bit.
 #[inline]
 #[must_use]
 fn pc2(cd: &CD56) -> Subkey {
     let key56 = Key56::from(cd);
-    permutate(key56.as_int(), 56, 48, &PC2).into()
+    permutate(key56.as_u64(), 56, 48, &PC2).into()
 }
 
 impl<'a> IntoIterator for &'a Subkeys {
@@ -116,12 +89,6 @@ impl Debug for Subkeys {
     }
 }
 
-impl Default for Subkeys {
-    fn default() -> Self {
-        Self::new_empty()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -132,7 +99,7 @@ mod tests {
     #[rstest]
     #[case(TEST_KEY, 0x00F0_CCAA_F556_678F)]
     fn pc1_permutaion_correct(#[case] key: u64, #[case] expected: u64) {
-        let result = pc1(&key.into()).as_int();
+        let result = pc1(&key.into()).as_u64();
         assert_eq!(
             result, expected,
             "PC1 permutation failed. Expected {expected:08X}, got {result:08X}",
@@ -159,7 +126,7 @@ mod tests {
     #[case(0x00F0_CCAA_F556_678F, 0xCB3D_8B0E_17F5)] // K_16
     fn pc2_permutaion(#[case] before: u64, #[case] expected: u64) {
         let key56 = Key56::from(before).split();
-        let result = pc2(&key56).as_int();
+        let result = pc2(&key56).as_u64();
         assert_eq!(
             result, expected,
             "PC2 permutation failed. Expected {expected:016X}, got {result:016X}"

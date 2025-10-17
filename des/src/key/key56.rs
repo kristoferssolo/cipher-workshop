@@ -1,26 +1,26 @@
 use crate::{
     key::{cd56::CD56, half28::Half28},
-    secret_int,
+    secret_key,
 };
 
-secret_int! {
+secret_key! {
     /// 56-bit key after PC-1 (lower 56 bits used).
     pub struct Key56(u64, 56, 0x00FF_FFFF_FFFF_FFFF);
 }
 
 impl Key56 {
     #[must_use]
-    pub fn split(&self) -> CD56 {
+    pub const fn split(&self) -> CD56 {
         let c = ((self.0 >> 28) & 0x0FFF_FFFF) as u32;
         let d = (self.0 & 0x0FFF_FFFF) as u32;
-        CD56::new(c, d)
+        CD56::new(Half28::from_u32(c), Half28::from_u32(d))
     }
 
     #[must_use]
-    pub fn from_half28(left: &Half28, right: &Half28) -> Self {
-        let left = u64::from(left.as_int());
-        let right = u64::from(right.as_int());
-        Self::from_int((left << 28) | right)
+    pub const fn from_half28(left: &Half28, right: &Half28) -> Self {
+        let left = left.as_u64();
+        let right = right.as_u64();
+        Self::from_u64((left << 28) | right)
     }
 }
 

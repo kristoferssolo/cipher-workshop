@@ -1,6 +1,6 @@
-use crate::key::secret_int;
+use crate::key::secret_key;
 
-secret_int! {
+secret_key! {
     /// 28-bit half (C or D), stored in lower 28 bits of u32.
     pub struct Half28(u32, 28, 0x0FFF_FFFF);
 }
@@ -11,15 +11,14 @@ impl Half28 {
         let value = self.0;
         let main_shifted = (value << amount) & Self::MASK;
         let wrapped_bits = (value >> (28 - amount)) & ((1 << amount) - 1);
-        Self::from_int(main_shifted | wrapped_bits)
+        Self::from_u32(main_shifted | wrapped_bits)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use rstest::rstest;
-
     use super::*;
+    use rstest::rstest;
 
     #[rstest]
     #[case(0x0F0C_CAAF, 0x0E19_955F, 1)] // C_1
@@ -55,7 +54,7 @@ mod tests {
     #[case(0x0EAA_CCF1, 0x0AAB_33C7, 2)] // D_15
     #[case(0x0AAB_33C7, 0x0556_678F, 1)] // D_16
     fn half28_rotation(#[case] key: u32, #[case] expected: u32, #[case] amount: u8) {
-        let result = Half28::from_int(key).rotate_left(amount).as_int();
+        let result = Half28::from_u32(key).rotate_left(amount).as_u32();
 
         assert_eq!(
             result, expected,

@@ -8,11 +8,10 @@ pub struct CD56 {
 }
 
 impl CD56 {
-    pub fn new(c: impl Into<Half28>, d: impl Into<Half28>) -> Self {
-        Self {
-            c: c.into(),
-            d: d.into(),
-        }
+    #[inline]
+    #[must_use]
+    pub const fn new(c: Half28, d: Half28) -> Self {
+        Self { c, d }
     }
 
     pub fn rotate_left(&mut self, amount: u8) {
