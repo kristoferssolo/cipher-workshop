@@ -4,7 +4,7 @@ members = ["aes", "cipher-core", "cli", "des", "tui"]
 
 [workspace.dependencies]
 aes = { path = "aes" }
-anyhow = "1"
+color-eyre = "0.6"
 cipher-core = { path = "cipher-core" }
 claims = "0.8"
 des = { path = "des" }

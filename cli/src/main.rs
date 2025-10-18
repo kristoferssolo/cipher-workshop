@@ -11,7 +11,8 @@ use crate::{
 use cipher_core::BlockCipher;
 use clap::Parser;
 
-fn main() -> anyhow::Result<()> {
+fn main() -> color_eyre::Result<()> {
+    color_eyre::install()?;
     let Args {
         operation,
         algorithm,
