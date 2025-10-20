@@ -26,7 +26,7 @@ impl Des {
     ///
     /// ```
     /// use des::Des;
-    /// let des = Des::new(0x1334_5779_9BBC_DFF1u64).expect("Valid key");
+    /// let des = Des::new(0x1334_5779_9BBC_DFF1u64);
     /// ```
     pub fn new(key: impl Into<Key>) -> Self {
         let subkeys = Subkeys::from_key(&key.into());

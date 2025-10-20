@@ -2,6 +2,7 @@
 ///
 /// Usage:
 /// ```
+/// use des::secret_key;
 /// secret_key! {
 ///     /// docs...
 ///     pub struct Subkey(u64, 48, 0x0000_FFFF_FFFF_FFFFu64);

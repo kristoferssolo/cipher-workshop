@@ -2,6 +2,7 @@
 ///
 /// Usage:
 /// ```
+/// use des::secret_block;
 /// secret_block! {
 ///     /// docs...
 ///     pub struct Block48(u64, 48, 0x0000_FFFF_FFFF_FFFFu64);
