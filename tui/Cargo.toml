@@ -5,18 +5,13 @@ authors = ["Kristofers Solo <dev@kristofers.xyz>"]
 edition = "2024"
 
 [dependencies]
-aes = { workspace = true, optional = true }
+aes.workspace = true
 cipher-core.workspace = true
 color-eyre.workspace = true
 crossterm = "0.28"
-des = { workspace = true, optional = true }
+des.workspace = true
 ratatui = "0.29"
 thiserror.workspace = true
-
-[features]
-default = ["des", "aes"]
-des = ["dep:des"]
-aes = ["dep:aes"]
 
 [lints]
 workspace = true
