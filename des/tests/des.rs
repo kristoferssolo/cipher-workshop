@@ -1,4 +1,4 @@
-use cipher_core::{BlockCipher, CipherOutput};
+use cipher_core::{BlockCipher, Output};
 use claims::assert_ok;
 use des::Des;
 use rstest::rstest;
@@ -192,7 +192,7 @@ fn different_inputs() {
     );
 }
 
-fn cipher_block_to_u64(block: CipherOutput) -> u64 {
+fn cipher_block_to_u64(block: Output) -> u64 {
     let bytes = block.as_slice().try_into().expect("8 bytes");
     u64::from_be_bytes(bytes)
 }

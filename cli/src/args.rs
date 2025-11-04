@@ -1,5 +1,6 @@
-use crate::{output::OutputFormat, value::Value};
+use crate::output::OutputFormat;
 use clap::{Parser, ValueEnum};
+use des::Block64;
 use std::str::FromStr;
 
 #[derive(Debug, Clone, Parser)]
@@ -14,12 +15,12 @@ pub struct Args {
     pub algorithm: AlgorithmChoice,
 
     /// Key used for encryption/decryption. Can be a string or a path to a file
-    #[arg(short, long, value_parser = Value::from_str, required = true)]
-    pub key: Value,
+    #[arg(short, long, value_parser = Block64::from_str, required = true)]
+    pub key: Block64,
 
     /// The text to encrypt/decrypt. Can be a string or a path to a file
-    #[arg(value_name = "TEXT", value_parser = Value::from_str, required = true)]
-    pub text: Value,
+    #[arg(value_name = "TEXT", value_parser = Block64::from_str, required = true)]
+    pub text: Block64,
 
     /// Output format for decrypted data
     #[arg(short = 'f', long)]

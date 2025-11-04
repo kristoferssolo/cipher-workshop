@@ -3,7 +3,7 @@ mod traits;
 mod types;
 
 pub use {
-    error::{CipherError, CipherResult},
-    traits::BlockCipher,
-    types::{CipherAction, CipherOutput},
+    error::{BlockError, CipherError, CipherResult},
+    traits::{BlockCipher, BlockParser, InputBlock},
+    types::{CipherAction, Output},
 };

@@ -1,8 +1,6 @@
 mod args;
 mod cipher;
-mod error;
 mod output;
-mod value;
 
 use crate::{
     args::{Args, OperationChoice},
@@ -23,12 +21,12 @@ fn main() -> color_eyre::Result<()> {
 
     match operation {
         OperationChoice::Encrypt => {
-            let cipher = algorithm.get_cipher(key);
+            let cipher = algorithm.get_cipher(&key);
             let ciphertext = cipher.encrypt(&text.to_be_bytes())?;
             println!("{ciphertext:016X}");
         }
         OperationChoice::Decrypt => {
-            let cipher = algorithm.get_cipher(key);
+            let cipher = algorithm.get_cipher(&key);
             let plaintext = cipher.decrypt(&text.to_be_bytes())?;
             match output_format.unwrap_or_default() {
                 OutputFormat::Binary => println!("{plaintext:064b}"),

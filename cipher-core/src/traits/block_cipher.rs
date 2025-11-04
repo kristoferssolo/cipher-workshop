@@ -1,4 +1,4 @@
-use crate::{CipherAction, CipherError, CipherOutput, CipherResult};
+use crate::{CipherAction, CipherError, CipherResult, Output};
 
 /// Generic block cipher trait.
 ///
@@ -15,7 +15,7 @@ pub trait BlockCipher: Sized {
     /// # Errors
     ///
     /// Returns `CipherError` if the transformation fails.
-    fn transform_impl(&self, block: &[u8], action: CipherAction) -> CipherResult<CipherOutput>;
+    fn transform_impl(&self, block: &[u8], action: CipherAction) -> CipherResult<Output>;
 
     /// Transforms a block with validation.
     ///
@@ -25,7 +25,7 @@ pub trait BlockCipher: Sized {
     /// # Errors
     ///
     /// Returns `CipherError::InvalidBlockSize` if `block.len() != BLOCK_SIZE`.
-    fn transform(&self, block: &[u8], action: CipherAction) -> CipherResult<CipherOutput> {
+    fn transform(&self, block: &[u8], action: CipherAction) -> CipherResult<Output> {
         if block.len() != Self::BLOCK_SIZE {
             return Err(CipherError::invalid_block_size(
                 Self::BLOCK_SIZE,
@@ -40,7 +40,7 @@ pub trait BlockCipher: Sized {
     /// # Errors
     ///
     /// Returns `CipherError::InvalidBlockSize` if the plaintext is not exactly `BLOCK_SIZE` bytes.
-    fn encrypt(&self, plaintext: &[u8]) -> CipherResult<CipherOutput> {
+    fn encrypt(&self, plaintext: &[u8]) -> CipherResult<Output> {
         self.transform(plaintext, CipherAction::Encrypt)
     }
 
@@ -49,7 +49,7 @@ pub trait BlockCipher: Sized {
     /// # Errors
     ///
     /// Returns `CipherError::InvalidBlockSize` if the plaintext is not exactly `BLOCK_SIZE` bytes.
-    fn decrypt(&self, ciphertext: &[u8]) -> CipherResult<CipherOutput> {
+    fn decrypt(&self, ciphertext: &[u8]) -> CipherResult<Output> {
         self.transform(ciphertext, CipherAction::Decrypt)
     }
 }
