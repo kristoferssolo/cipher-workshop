@@ -74,11 +74,6 @@ fn parse_string_to_u64(s: &str) -> Result<u64, BlockError> {
         return parse_radix(bin_str, 2);
     }
 
-    // 8-character ASCII string conversion to u64
-    if trimmed.len() > 8 {
-        return Err(BlockError::InvalidByteStringLength(trimmed.len()));
-    }
-
     ascii_string_to_u64(trimmed)
 }
 
@@ -92,6 +87,10 @@ fn parse_radix(s: &str, radix: u32) -> Result<u64, BlockError> {
 }
 
 fn ascii_string_to_u64(s: &str) -> Result<u64, BlockError> {
+    if s.len() > 8 {
+        return Err(BlockError::InvalidByteStringLength(s.len()));
+    }
+
     if !s.is_ascii() {
         return Err(BlockError::conversion_error(
             "u64",
@@ -99,10 +98,9 @@ fn ascii_string_to_u64(s: &str) -> Result<u64, BlockError> {
         ));
     }
 
-    let mut bytes = [0; 8];
-    for (idx, byte) in s.bytes().enumerate() {
-        bytes[idx] = byte;
-    }
+    let mut bytes = [0u8; 8];
+    let offset = 8 - s.len();
+    bytes[offset..].copy_from_slice(s.as_bytes());
 
     Ok(u64::from_be_bytes(bytes))
 }
