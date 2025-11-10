@@ -15,7 +15,7 @@ macro_rules! secret_key {
     $vis:vis struct $name:ident ( $int:tt, $bits:expr, $mask:expr );
 ) => {
         $(#[$meta])*
-        #[derive(::zeroize::ZeroizeOnDrop, Default)]
+        #[derive(Default, Clone, Copy)]
         $vis struct $name($int);
 
         impl $name {

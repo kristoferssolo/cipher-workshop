@@ -1,4 +1,5 @@
 mod aes_key;
+mod expanded;
 mod secret_key;
 mod subkey;
 mod subkeys;

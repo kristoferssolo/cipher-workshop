@@ -1,4 +1,7 @@
-use crate::key::{Key, subkey::Subkey};
+use crate::{
+    constants::{RCON, S_BOXES},
+    key::{Key, expanded::ExpandedKey, subkey::Subkey},
+};
 use std::{
     fmt::Debug,
     iter::Rev,
@@ -6,14 +9,32 @@ use std::{
     slice::{Iter, IterMut},
 };
 
+const SUBKEY_COUNT: usize = 44;
+
 // #[derive(Default)]
-pub struct Subkeys([Subkey; 44]);
+pub struct Subkeys([Subkey; SUBKEY_COUNT]);
 
 impl Subkeys {
     /// Generates 44 round subkeys from the given key.
     #[must_use]
     pub fn from_key(key: &Key) -> Self {
-        todo!()
+        let mut subkeys = [const { Subkey::zero() }; 44];
+
+        // Load initial key
+        for (idx, &key) in key.as_2d().iter().enumerate() {
+            subkeys[idx] = Subkey::from_u32(u32::from_be_bytes(key));
+        }
+
+        for (round, &rcon) in RCON.iter().enumerate() {
+            let idx = round * 4 + 4;
+
+            subkeys[idx + 0] = subkeys[idx - 4] ^ expand(&subkeys[idx - 1], rcon);
+            subkeys[idx + 1] = subkeys[idx] ^ subkeys[idx - 3];
+            subkeys[idx + 2] = subkeys[idx + 1] ^ subkeys[idx - 2];
+            subkeys[idx + 3] = subkeys[idx + 2] ^ subkeys[idx - 1];
+        }
+
+        Self(subkeys)
     }
 
     /// Returns an iterator over the subkeys.
@@ -59,6 +80,25 @@ impl Debug for Subkeys {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("Subkeys[REDACTED]")
     }
+}
+
+const fn expand(subkey: &Subkey, rcon: u32) -> ExpandedKey {
+    let word = subkey.rotate_left(8).as_u32();
+
+    let b0 = sbox_lookup(word >> 24);
+    let b1 = sbox_lookup(word >> 16);
+    let b2 = sbox_lookup(word >> 8);
+    let b3 = sbox_lookup(word);
+    let substituted = (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
+    ExpandedKey::from_u32(substituted ^ rcon)
+}
+
+const fn sbox_lookup(byte: u32) -> u32 {
+    const MASK: u32 = 0xFF;
+    let row = ((byte & MASK) as usize) >> 4;
+    let col = ((byte & MASK) as usize) & 0xF;
+
+    S_BOXES[row][col] as u32
 }
 
 #[cfg(test)]
