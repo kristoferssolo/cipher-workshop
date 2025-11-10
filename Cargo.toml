@@ -1,12 +1,14 @@
 [workspace]
 resolver = "2"
-members = ["aes", "cipher-core", "cli", "des"]
+members = ["aes", "cipher-core", "cipher-factory", "cli", "des"]
 
 [workspace.dependencies]
 aes = { path = "aes" }
 color-eyre = "0.6"
 cipher-core = { path = "cipher-core" }
+cipher-factory = { path = "cipher-factory" }
 claims = "0.8"
+clap = { version = "4.5", features = ["derive"] }
 des = { path = "des" }
 rand = "0.9"
 rstest = "0.26"

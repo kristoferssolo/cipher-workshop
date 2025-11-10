@@ -1,0 +1,17 @@
+[package]
+name = "cipher-factory"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+aes.workspace = true
+cipher-core.workspace = true
+clap = { workspace = true, optional = true }
+des.workspace = true
+
+[features]
+default = []
+clap = ["dep:clap"]
+
+[lints]
+workspace = true

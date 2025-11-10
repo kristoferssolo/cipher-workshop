@@ -1,12 +1,8 @@
 mod args;
-mod cipher;
-mod output;
 
-use crate::{
-    args::{Args, OperationChoice},
-    output::OutputFormat,
-};
+use crate::args::Args;
 use cipher_core::BlockCipher;
+use cipher_factory::OperationChoice;
 use clap::Parser;
 
 fn main() -> color_eyre::Result<()> {
@@ -28,12 +24,8 @@ fn main() -> color_eyre::Result<()> {
         OperationChoice::Decrypt => {
             let cipher = algorithm.get_cipher(&key);
             let plaintext = cipher.decrypt(&text.to_be_bytes())?;
-            match output_format.unwrap_or_default() {
-                OutputFormat::Binary => println!("{plaintext:064b}"),
-                OutputFormat::Octal => println!("{plaintext:022o}"),
-                OutputFormat::Hex => println!("{plaintext:016X}"),
-                OutputFormat::Text => println!("{plaintext}"),
-            }
+            let output = output_format.unwrap_or_default().to_string(&plaintext);
+            println!("{output}");
         }
     }
     Ok(())

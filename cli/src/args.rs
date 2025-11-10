@@ -1,5 +1,5 @@
-use crate::output::OutputFormat;
-use clap::{Parser, ValueEnum};
+use cipher_factory::{Algorithm, OperationChoice, OutputFormat};
+use clap::Parser;
 use des::Block64;
 use std::str::FromStr;
 
@@ -12,7 +12,7 @@ pub struct Args {
 
     /// Encryption algorithm
     #[arg(short, long)]
-    pub algorithm: AlgorithmChoice,
+    pub algorithm: Algorithm,
 
     /// Key used for encryption/decryption. Can be a string or a path to a file
     #[arg(short, long, value_parser = Block64::from_str, required = true)]
@@ -25,16 +25,4 @@ pub struct Args {
     /// Output format for decrypted data
     #[arg(short = 'f', long)]
     pub output_format: Option<OutputFormat>,
-}
-
-#[derive(Debug, Clone, Copy, ValueEnum)]
-pub enum AlgorithmChoice {
-    Des,
-    Aes,
-}
-
-#[derive(Debug, Clone, Copy, ValueEnum)]
-pub enum OperationChoice {
-    Encrypt,
-    Decrypt,
 }
