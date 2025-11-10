@@ -1,8 +1,8 @@
 [package]
 name = "cipher-core"
-version = "0.1.0"
-authors = ["Kristofers Solo <dev@kristofers.xyz>"]
-edition = "2024"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
 [dependencies]
 thiserror.workspace = true
