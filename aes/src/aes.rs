@@ -1,3 +1,5 @@
+use cipher_core::BlockCipher;
+
 use crate::key::Key;
 
 pub struct Aes {}
@@ -8,10 +10,17 @@ impl Aes {
     }
 }
 
-impl Aes {
+impl BlockCipher for Aes {
     const BLOCK_SIZE: usize = 16;
-
     fn from_key(key: &[u8]) -> Self {
         Self::new(key)
+    }
+
+    fn transform_impl(
+        &self,
+        block: &[u8],
+        action: cipher_core::CipherAction,
+    ) -> cipher_core::CipherResult<cipher_core::Output> {
+        todo!()
     }
 }
