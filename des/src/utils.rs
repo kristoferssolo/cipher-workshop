@@ -1,4 +1,5 @@
 /// Generic bit permutation for DES specification.
+///
 /// DES uses 1-based positioning where bit 1 is the leftmost (MSB) and bit 64 is the rightmost (LSB).
 /// This function handles this correctly for arbitrary input/output sizes.
 ///

@@ -28,7 +28,7 @@ impl Subkeys {
         for (round, &rcon) in RCON.iter().enumerate() {
             let idx = round * 4 + 4;
 
-            subkeys[idx + 0] = subkeys[idx - 4] ^ expand(&subkeys[idx - 1], rcon);
+            subkeys[idx] = subkeys[idx - 4] ^ expand(subkeys[idx - 1], rcon);
             subkeys[idx + 1] = subkeys[idx] ^ subkeys[idx - 3];
             subkeys[idx + 2] = subkeys[idx + 1] ^ subkeys[idx - 2];
             subkeys[idx + 3] = subkeys[idx + 2] ^ subkeys[idx - 1];
@@ -82,7 +82,7 @@ impl Debug for Subkeys {
     }
 }
 
-const fn expand(subkey: &Subkey, rcon: u32) -> ExpandedKey {
+const fn expand(subkey: Subkey, rcon: u32) -> ExpandedKey {
     let word = subkey.rotate_left(8).as_u32();
 
     let b0 = sbox_lookup(word >> 24);
@@ -105,7 +105,7 @@ const fn sbox_lookup(byte: u32) -> u32 {
 mod tests {
     use super::*;
 
-    const TEST_KEY: u128 = 0x0F1571C947D9E8591CB7ADD6AF7F6798;
+    const TEST_KEY: u128 = 0x0F15_71C9_47D9_E859_1CB7_ADD6_AF7F_6798;
 
     impl PartialEq<[[u8; 4]; 44]> for Subkeys {
         fn eq(&self, other: &[[u8; 4]; 44]) -> bool {
@@ -167,6 +167,6 @@ mod tests {
                 [0xDD, 0xB0, 0x06, 0x46],
                 [0x86, 0xDB, 0x18, 0x10],
             ]
-        )
+        );
     }
 }

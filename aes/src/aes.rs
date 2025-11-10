@@ -18,8 +18,8 @@ impl BlockCipher for Aes {
 
     fn transform_impl(
         &self,
-        block: &[u8],
-        action: cipher_core::CipherAction,
+        _block: &[u8],
+        _action: cipher_core::CipherAction,
     ) -> cipher_core::CipherResult<cipher_core::Output> {
         todo!()
     }

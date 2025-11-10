@@ -10,7 +10,7 @@
 ///   The table should have `output_bits` entries. For each entry i (0-based), `position_table`[i] indicates
 ///   which input bit (1-based) should go to the i-th output bit position (from MSB to LSB).
 #[must_use]
-pub fn permutate(
+pub fn _permutate(
     input: u64,
     input_bit_amount: u64,
     output_bit_amount: u64,
