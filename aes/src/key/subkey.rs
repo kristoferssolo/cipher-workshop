@@ -27,6 +27,18 @@ impl Subkey {
     pub const fn rotate_right(self, n: u32) -> Self {
         Self(self.0.rotate_right(n))
     }
+
+    #[inline]
+    #[must_use]
+    pub const fn to_be_bytes(self) -> [u8; 4] {
+        self.0.to_be_bytes()
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn to_le_bytes(self) -> [u8; 4] {
+        self.0.to_le_bytes()
+    }
 }
 
 impl BitXor<ExpandedKey> for Subkey {

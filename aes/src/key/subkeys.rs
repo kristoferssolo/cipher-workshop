@@ -51,6 +51,11 @@ impl Subkeys {
     pub fn iter_mut(&mut self) -> IterMut<'_, Subkey> {
         self.0.iter_mut()
     }
+
+    /// Returns the first element of the slice, or `None` if it is empty.
+    pub fn first(&self) -> Option<&Subkey> {
+        self.0.first()
+    }
 }
 
 impl<'a> IntoIterator for &'a Subkeys {

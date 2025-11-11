@@ -1,4 +1,4 @@
-use crate::block::secret_block;
+use crate::block::{Block32, secret_block};
 use cipher_core::{BlockError, InputBlock};
 use std::{
     slice::{from_raw_parts, from_raw_parts_mut},
@@ -36,6 +36,18 @@ impl Block128 {
     #[must_use]
     pub const fn to_le_bytes(self) -> [u8; 16] {
         self.0.to_le_bytes()
+    }
+
+    #[inline]
+    #[must_use]
+    pub const fn as_block32_array(self) -> [Block32; 4] {
+        let val = self.0;
+        [
+            Block32::from_u32((val >> 96) as u32),
+            Block32::from_u32((val >> 64) as u32),
+            Block32::from_u32((val >> 32) as u32),
+            Block32::from_u32(val as u32),
+        ]
     }
 }
 
@@ -105,14 +117,20 @@ impl From<[u8; 16]> for Block128 {
     }
 }
 
+impl From<Block128> for [Block32; 4] {
+    fn from(block: Block128) -> Self {
+        block.as_block32_array()
+    }
+}
+
 impl From<Block128> for Vec<u8> {
     fn from(value: Block128) -> Self {
-        value.0.to_be_bytes().to_vec()
+        value.to_be_bytes().to_vec()
     }
 }
 
 impl From<&Block128> for Vec<u8> {
     fn from(value: &Block128) -> Self {
-        value.0.to_be_bytes().to_vec()
+        value.to_be_bytes().to_vec()
     }
 }
