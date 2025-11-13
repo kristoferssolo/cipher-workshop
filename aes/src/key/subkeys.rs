@@ -1,12 +1,13 @@
 use crate::{
-    constants::{RCON, S_BOXES},
+    constants::RCON,
     key::{Key, expanded::ExpandedKey, subkey::Subkey},
+    sbox::SboxLookup,
 };
 use std::{
     fmt::Debug,
     iter::Rev,
     ops::Index,
-    slice::{Iter, IterMut},
+    slice::{ChunksExact, Iter, IterMut},
 };
 
 const SUBKEY_COUNT: usize = 44;
@@ -53,8 +54,14 @@ impl Subkeys {
     }
 
     /// Returns the first element of the slice, or `None` if it is empty.
-    pub fn first(&self) -> Option<&Subkey> {
+    pub const fn first(&self) -> Option<&Subkey> {
         self.0.first()
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn chunks(&self) -> SubkeyChunks<'_> {
+        SubkeyChunks(self.0.chunks_exact(4))
     }
 }
 
@@ -87,7 +94,18 @@ impl Debug for Subkeys {
     }
 }
 
-const fn expand(subkey: Subkey, rcon: u32) -> ExpandedKey {
+pub struct SubkeyChunks<'a>(ChunksExact<'a, Subkey>);
+
+impl<'a> Iterator for SubkeyChunks<'a> {
+    type Item = &'a [Subkey; 4];
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0
+            .next()
+            .map(|chunk| <&[Subkey; 4]>::try_from(chunk).unwrap())
+    }
+}
+
+fn expand(subkey: Subkey, rcon: u32) -> ExpandedKey {
     let word = subkey.rotate_left(8).as_u32();
 
     let b0 = sbox_lookup(word >> 24);
@@ -98,12 +116,8 @@ const fn expand(subkey: Subkey, rcon: u32) -> ExpandedKey {
     ExpandedKey::from_u32(substituted ^ rcon)
 }
 
-const fn sbox_lookup(byte: u32) -> u32 {
-    const MASK: u32 = 0xFF;
-    let row = ((byte & MASK) as usize) >> 4;
-    let col = ((byte & MASK) as usize) & 0xF;
-
-    S_BOXES[row][col] as u32
+fn sbox_lookup<T: SboxLookup>(val: T) -> T {
+    val.sbox_lookup()
 }
 
 #[cfg(test)]

@@ -2,6 +2,7 @@ use crate::{
     Block128,
     block::Block32,
     key::{Key, Subkey, Subkeys},
+    sbox::SboxLookup,
 };
 use cipher_core::{BlockCipher, CipherError};
 
@@ -34,16 +35,26 @@ impl BlockCipher for Aes {
 
         let block128 = Block128::from_be_bytes(block_arr);
 
-        let round_key = add_round_key(
-            *self.subkeys.first().unwrap(),
-            *block128.as_block32_array().first().unwrap(),
-        );
+        let mut subkey_iter = self.subkeys.chunks();
+        dbg!(&subkey_iter.count());
+
+        // let foo = *subkey_iter.next().unwrap();
+        // let round_key = add_round_key(
+        //     *block128.as_block32_array().first().unwrap(),
+        //     *subkey_iter.next().unwrap(),
+        // );
+
+        // for i in subkey_iter {}
         todo!()
     }
 }
 
-fn add_round_key(subkey: Subkey, block: Block32) -> Block32 {
+fn add_round_key(block: Block32, subkey: Subkey) -> Block32 {
     block ^ subkey
+}
+
+fn substitute_bytes(block: Block128) -> Block128 {
+    block.sbox_lookup()
 }
 
 #[cfg(test)]
@@ -63,8 +74,20 @@ mod tests {
         let block = Block32::new(block);
         let subkey = Subkey::from_u32(subkey);
 
-        let result = add_round_key(subkey, block);
+        let result = add_round_key(block, subkey);
 
         assert_eq!(result.as_u32(), expected);
+    }
+
+    #[rstest]
+    #[case(
+        0x0E36_34AE_CE72_25B6_E26B_174E_D92B_5588,
+        0xAB05_18E4_8B40_3F4E_987F_F02F_35F1_FCC4
+    )]
+    fn byte_substitution(#[case] block: u128, #[case] expected: u128) {
+        let block = Block128::new(block);
+
+        let result = substitute_bytes(block);
+        assert_eq!(result.as_u128(), expected);
     }
 }

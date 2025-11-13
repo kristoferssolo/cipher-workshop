@@ -1,7 +1,10 @@
-use crate::block::{Block32, secret_block};
+use crate::{
+    block::{Block32, secret_block},
+    sbox::SboxLookup,
+};
 use cipher_core::{BlockError, InputBlock};
 use std::{
-    slice::{from_raw_parts, from_raw_parts_mut},
+    slice::{ChunksExact, from_raw_parts, from_raw_parts_mut},
     str::FromStr,
 };
 
@@ -16,6 +19,12 @@ impl InputBlock for Block128 {
     }
     fn as_bytes_mut(&mut self) -> &mut [u8] {
         unsafe { from_raw_parts_mut((&raw mut self.0).cast::<u128>().cast::<u8>(), 16) }
+    }
+}
+
+impl SboxLookup for Block128 {
+    fn sbox_lookup(self) -> Self {
+        Self(self.0.sbox_lookup())
     }
 }
 
@@ -40,6 +49,7 @@ impl Block128 {
 
     #[inline]
     #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
     pub const fn as_block32_array(self) -> [Block32; 4] {
         let val = self.0;
         [
