@@ -26,6 +26,9 @@ impl SboxLookup for Block128 {
     fn sbox_lookup(self) -> Self {
         Self(self.0.sbox_lookup())
     }
+    fn inv_sbox_lookup(self) -> Self {
+        Self(self.0.inv_sbox_lookup())
+    }
 }
 
 impl Block128 {

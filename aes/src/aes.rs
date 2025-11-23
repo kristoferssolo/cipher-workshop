@@ -59,9 +59,8 @@ fn substitute_bytes(block: Block128) -> Block128 {
 
 #[cfg(test)]
 mod tests {
-    use rstest::rstest;
-
     use super::*;
+    use rstest::rstest;
 
     const TEST_MESSAGE: u128 = 0x0123_4567_89AB_CDEF_FEDC_BA98_7654_3210;
 
