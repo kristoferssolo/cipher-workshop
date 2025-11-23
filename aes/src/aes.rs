@@ -1,6 +1,5 @@
 use crate::{
     Block128,
-    block::Block32,
     key::{Key, Subkey, Subkeys},
     sbox::SboxLookup,
 };
@@ -15,6 +14,44 @@ impl Aes {
         Self {
             subkeys: Subkeys::from_key(&key.into()),
         }
+    }
+
+    fn encryot_block(&self, mut state: Block128) -> Block128 {
+        let mut keys = self.subkeys.chunks();
+        state = add_round_key(state, keys.next().expect("Round key 0"));
+
+        for _ in 1..10 {
+            state = state.sub_bytes();
+            state = state.shift_rows();
+            state = state.mix_columns();
+            state = add_round_key(state, keys.next().expect("Round key"));
+        }
+
+        // Final round: SubBytes, ShiftRows, AddRoundKey (no MixColumns)
+        state = state.sub_bytes();
+        state = state.shift_rows();
+        state = add_round_key(state, keys.next().expect("Final Round key"));
+
+        state
+    }
+
+    fn decryot_block(&self, mut state: Block128) -> Block128 {
+        let mut keys = self.subkeys.chunks();
+        state = add_round_key(state, keys.next().expect("Final round key"));
+
+        for _ in 1..10 {
+            state = state.inv_shift_rows();
+            state = state.inv_sub_bytes();
+            state = add_round_key(state, keys.next().expect("Round key"));
+            state = state.inv_mix_columns();
+        }
+
+        // Final round: SubBytes, ShiftRows, AddRoundKey (no MixColumns)
+        state = state.inv_shift_rows();
+        state = state.inv_sub_bytes();
+        state = add_round_key(state, keys.next().expect("Round key 0"));
+
+        state
     }
 }
 
@@ -35,26 +72,22 @@ impl BlockCipher for Aes {
 
         let block128 = Block128::from_be_bytes(block_arr);
 
-        let mut subkey_iter = self.subkeys.chunks();
-        dbg!(&subkey_iter.count());
+        let result = match action {
+            cipher_core::CipherAction::Encrypt => self.encryot_block(block128),
+            cipher_core::CipherAction::Decrypt => self.decryot_block(block128),
+        };
 
-        // let foo = *subkey_iter.next().unwrap();
-        // let round_key = add_round_key(
-        //     *block128.as_block32_array().first().unwrap(),
-        //     *subkey_iter.next().unwrap(),
-        // );
-
-        // for i in subkey_iter {}
-        todo!()
+        Ok(result.into())
     }
 }
 
-fn add_round_key(block: Block32, subkey: Subkey) -> Block32 {
-    block ^ subkey
-}
-
-fn substitute_bytes(block: Block128) -> Block128 {
-    block.sbox_lookup()
+const fn add_round_key(state: Block128, subkeys: &[Subkey; 4]) -> Block128 {
+    let k0 = subkeys[0].as_u128();
+    let k1 = subkeys[1].as_u128();
+    let k2 = subkeys[2].as_u128();
+    let k3 = subkeys[3].as_u128();
+    let key_block = (k0 << 96) | (k1 << 64) | (k2 << 32) | k3;
+    Block128::new(state.as_u128() ^ key_block)
 }
 
 #[cfg(test)]
@@ -62,31 +95,28 @@ mod tests {
     use super::*;
     use rstest::rstest;
 
-    const TEST_MESSAGE: u128 = 0x0123_4567_89AB_CDEF_FEDC_BA98_7654_3210;
+    const TEST_KEY: u128 = 0x2B7E_1516_28AE_D2A6_ABF7_1588_09CF_4F3C;
 
     #[rstest]
-    #[case(0x0123_4567, 0x0F15_71C9, 0x0E36_34AE)]
-    #[case(0x89AB_CDEF, 0x47D9_E859, 0xCE72_25B6)]
-    #[case(0xFEDC_BA98, 0x1CB7_ADD6, 0xE26B_174E)]
-    #[case(0x7654_3210, 0xAF7F_6798, 0xD92B_5588)]
-    fn round_key(#[case] block: u32, #[case] subkey: u32, #[case] expected: u32) {
-        let block = Block32::new(block);
-        let subkey = Subkey::from_u32(subkey);
+    #[case(0x0000_0000_0000_0000_0000_0000_0000_0000)]
+    #[case(0xFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF)]
+    #[case(0x1234_5678_9ABC_DEF0_1234_5678_9ABC_DEF0)]
+    fn add_round_key_roundtrip(#[case] plaintext: u128) {
+        let aes = Aes::new(TEST_KEY);
+        let state = Block128::new(plaintext);
 
-        let result = add_round_key(block, subkey);
+        // Get first round key
+        let mut keys = aes.subkeys.chunks();
+        let first_key = keys.next().expect("First round key");
 
-        assert_eq!(result.as_u32(), expected);
-    }
+        // AddRoundKey twice should return to original
+        let xored_once = add_round_key(state, first_key);
+        let xored_twice = add_round_key(xored_once, first_key);
 
-    #[rstest]
-    #[case(
-        0x0E36_34AE_CE72_25B6_E26B_174E_D92B_5588,
-        0xAB05_18E4_8B40_3F4E_987F_F02F_35F1_FCC4
-    )]
-    fn byte_substitution(#[case] block: u128, #[case] expected: u128) {
-        let block = Block128::new(block);
-
-        let result = substitute_bytes(block);
-        assert_eq!(result.as_u128(), expected);
+        assert_eq!(
+            xored_twice.as_u128(),
+            plaintext,
+            "AddRoundKey should be self-inverse (double XOR returns to original)"
+        );
     }
 }

@@ -180,6 +180,14 @@ impl Block128 {
 
         Self::from_be_bytes(bytes)
     }
+
+    pub fn sub_bytes(self) -> Self {
+        todo!()
+    }
+
+    pub fn inv_sub_bytes(self) -> Self {
+        todo!()
+    }
 }
 
 /// Galois Field multiplication by 2 (xtime).
