@@ -1,4 +1,4 @@
-use crate::key::{expanded::ExpandedKey, secret_key};
+use crate::key::secret_key;
 use std::ops::BitXor;
 
 secret_key! {
@@ -41,16 +41,9 @@ impl Subkey {
     }
 }
 
-impl BitXor<ExpandedKey> for Subkey {
-    type Output = Self;
-    fn bitxor(self, rhs: ExpandedKey) -> Self::Output {
-        Self(self.0 ^ rhs.as_u32())
-    }
-}
-
 impl BitXor for Subkey {
     type Output = Self;
     fn bitxor(self, rhs: Self) -> Self::Output {
-        Self(self.0 ^ rhs.0)
+        Self(self.0 ^ rhs.as_u32())
     }
 }

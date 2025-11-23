@@ -1,6 +1,6 @@
 use crate::{
     constants::RCON,
-    key::{Key, expanded::ExpandedKey, subkey::Subkey},
+    key::{Key, subkey::Subkey},
     sbox::SboxLookup,
 };
 use std::{
@@ -63,6 +63,12 @@ impl Subkeys {
     pub fn chunks(&self) -> SubkeyChunks<'_> {
         SubkeyChunks(self.0.chunks_exact(4))
     }
+
+    #[inline]
+    #[must_use]
+    pub fn chunks_rev(&self) -> SubkeyChunksRev<'_> {
+        SubkeyChunksRev(self.0.chunks_exact(4).rev())
+    }
 }
 
 impl<'a> IntoIterator for &'a Subkeys {
@@ -105,19 +111,21 @@ impl<'a> Iterator for SubkeyChunks<'a> {
     }
 }
 
-fn expand(subkey: Subkey, rcon: u32) -> ExpandedKey {
-    let word = subkey.rotate_left(8).as_u32();
+pub struct SubkeyChunksRev<'a>(Rev<ChunksExact<'a, Subkey>>);
 
-    let b0 = sbox_lookup(word >> 24);
-    let b1 = sbox_lookup(word >> 16);
-    let b2 = sbox_lookup(word >> 8);
-    let b3 = sbox_lookup(word);
-    let substituted = (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
-    ExpandedKey::from_u32(substituted ^ rcon)
+impl<'a> Iterator for SubkeyChunksRev<'a> {
+    type Item = &'a [Subkey; 4];
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0
+            .next()
+            .map(|chunk| <&[Subkey; 4]>::try_from(chunk).unwrap())
+    }
 }
 
-fn sbox_lookup<T: SboxLookup>(val: T) -> T {
-    val.sbox_lookup()
+fn expand(subkey: Subkey, rcon: u32) -> Subkey {
+    let rotated = subkey.rotate_left(8);
+    let substituted = rotated.as_u32().sbox_lookup();
+    Subkey::from_u32(substituted ^ rcon)
 }
 
 #[cfg(test)]
@@ -131,6 +139,12 @@ mod tests {
             self.iter()
                 .zip(other)
                 .all(|(a, &b)| a.as_u32() == u32::from_be_bytes(b))
+        }
+    }
+
+    impl PartialEq for Subkey {
+        fn eq(&self, other: &Self) -> bool {
+            self.as_u32().eq(&other.as_u32())
         }
     }
 
@@ -187,5 +201,58 @@ mod tests {
                 [0x86, 0xDB, 0x18, 0x10],
             ]
         );
+    }
+
+    #[test]
+    fn subkey_expansion_cound() {
+        let key = Key::from(0x2B7E_1516_28AE_D2A6_ABF7_1588_09CF_4F3C);
+        let subkeys = Subkeys::from_key(&key);
+        assert_eq!(
+            subkeys.0.len(),
+            44,
+            "Expected 44 subkeys for AES-128 (11 rounds x 4)"
+        );
+    }
+
+    #[test]
+    fn chunks_iterator_count() {
+        let key = Key::from(0x2B7E_1516_28AE_D2A6_ABF7_1588_09CF_4F3C);
+        let subkeys = Subkeys::from_key(&key);
+
+        let chunk_count = subkeys.chunks().count();
+        assert_eq!(
+            chunk_count, 11,
+            "Expected 11 chunks of 4 subkeys (11 rounds)"
+        );
+    }
+
+    #[test]
+    fn chunks_rev_iterator_count() {
+        let key = Key::from(0x2B7E_1516_28AE_D2A6_ABF7_1588_09CF_4F3C);
+        let subkeys = Subkeys::from_key(&key);
+
+        let chunk_count = subkeys.chunks_rev().count();
+        assert_eq!(
+            chunk_count, 11,
+            "Expected 11 chunks of 4 subkeys in reverse"
+        );
+    }
+
+    #[test]
+    fn chunks_and_chunks_rev_are_complementary() {
+        let key = Key::from(0x2B7E_1516_28AE_D2A6_ABF7_1588_09CF_4F3C);
+        let subkeys = Subkeys::from_key(&key);
+
+        let forward = subkeys.chunks().collect::<Vec<_>>();
+        let backward = subkeys.chunks_rev().collect::<Vec<_>>();
+
+        assert_eq!(forward.len(), backward.len());
+
+        for (f, b) in forward.iter().zip(backward.iter().rev()) {
+            assert_eq!(
+                *f, *b,
+                "Forward and reverse chunks should be identical in reverse order"
+            );
+        }
     }
 }
