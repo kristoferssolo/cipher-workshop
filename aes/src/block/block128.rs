@@ -62,6 +62,7 @@ impl Block128 {
             Block32::from_u32(val as u32),
         ]
     }
+
     #[must_use]
     pub const fn shift_rows(self) -> Self {
         let b = self.to_be_bytes();
@@ -116,6 +117,65 @@ impl Block128 {
             bytes[offset + 1] = c0 ^ gmul(c1, 2) ^ gmul(c2, 3) ^ c3;
             bytes[offset + 2] = c0 ^ c1 ^ gmul(c2, 2) ^ gmul(c3, 3);
             bytes[offset + 3] = gmul(c0, 3) ^ c1 ^ c2 ^ gmul(c3, 2);
+        }
+
+        Self::from_be_bytes(bytes)
+    }
+
+    #[must_use]
+    pub const fn inv_shift_rows(self) -> Self {
+        let b = self.to_be_bytes();
+        let mut out = [0u8; 16];
+
+        // Row 0 (Indices 0, 4, 8, 12): No shift
+        out[0] = b[0];
+        out[4] = b[4];
+        out[8] = b[8];
+        out[12] = b[12];
+
+        // Row 1 (Indices 1, 5, 9, 13): Shift right 1 -> (13, 1, 5, 9)
+        out[1] = b[13];
+        out[5] = b[1];
+        out[9] = b[5];
+        out[13] = b[9];
+
+        // Row 2 (Indices 2, 6, 10, 14): Shift right 2 -> (10, 14, 2, 6)
+        out[2] = b[10];
+        out[6] = b[14];
+        out[10] = b[2];
+        out[14] = b[6];
+
+        // Row 3 (Indices 3, 7, 11, 15): Shift right 3 -> (7, 11, 15, 3)
+        out[3] = b[7];
+        out[7] = b[11];
+        out[11] = b[15];
+        out[15] = b[3];
+
+        Self::from_be_bytes(out)
+    }
+
+    #[must_use]
+    pub fn inv_mix_columns(self) -> Self {
+        let mut bytes = self.to_be_bytes();
+
+        // Process 4 columns independently
+        for col in 0..4 {
+            let offset = col * 4;
+            let c0 = bytes[offset];
+            let c1 = bytes[offset + 1];
+            let c2 = bytes[offset + 2];
+            let c3 = bytes[offset + 3];
+
+            // Inverse matrix multiplication:
+            // [14  11  13   9]
+            // [ 9  14  11  13]
+            // [13   9  14  11]
+            // [11  13   9  14]
+
+            bytes[offset] = gmul(c0, 14) ^ gmul(c1, 11) ^ gmul(c2, 13) ^ gmul(c3, 9);
+            bytes[offset + 1] = gmul(c0, 9) ^ gmul(c1, 14) ^ gmul(c2, 11) ^ gmul(c3, 13);
+            bytes[offset + 2] = gmul(c0, 13) ^ gmul(c1, 9) ^ gmul(c2, 14) ^ gmul(c3, 11);
+            bytes[offset + 3] = gmul(c0, 11) ^ gmul(c1, 13) ^ gmul(c2, 9) ^ gmul(c3, 14);
         }
 
         Self::from_be_bytes(bytes)
@@ -267,6 +327,36 @@ mod tests {
         assert_eq!(
             result, expected,
             "Mix Columns failed. Expected 0x{expected:032X}, got 0x{result:032X}",
+        );
+    }
+
+    #[rstest]
+    #[case(0x63CA_B704_0953_D051_CD60_E0E7_BA70_E18C)]
+    #[case(0x6353_E08C_0960_E104_CD70_B751_BACA_D0E7)]
+    #[case(0xD4BF_5D30_D4BF_5D30_D4BF_5D30_D4BF_5D30)]
+    fn inv_shift_rows_is_inverse(#[case] input: u128) {
+        let block = Block128::new(input);
+        let shifted = block.shift_rows();
+        let unshifted = shifted.inv_shift_rows().as_u128();
+
+        assert_eq!(
+            unshifted, input,
+            "InvShiftRows(ShiftRows(x)) != x. Expected 0x{input:032X}, got 0x{unshifted:032X}",
+        );
+    }
+
+    #[rstest]
+    #[case(0x63CA_B704_0953_D051_CD60_E0E7_BA70_E18C)]
+    #[case(0x6353_E08C_0960_E104_CD70_B751_BACA_D0E7)]
+    #[case(0xD4BF_5D30_D4BF_5D30_D4BF_5D30_D4BF_5D30)]
+    fn inv_mix_columns_is_inverse(#[case] input: u128) {
+        let block = Block128::new(input);
+        let mixed = block.mix_columns();
+        let unmixed = mixed.inv_mix_columns().as_u128();
+
+        assert_eq!(
+            unmixed, input,
+            "InvMixColumns(MixColumns(x)) != x. Expected 0x{input:032X}, got 0x{unmixed:032X}",
         );
     }
 
