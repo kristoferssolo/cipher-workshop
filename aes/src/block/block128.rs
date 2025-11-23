@@ -181,12 +181,16 @@ impl Block128 {
         Self::from_be_bytes(bytes)
     }
 
+    #[inline]
+    #[must_use]
     pub fn sub_bytes(self) -> Self {
-        todo!()
+        Self(self.0.sbox_lookup())
     }
 
+    #[inline]
+    #[must_use]
     pub fn inv_sub_bytes(self) -> Self {
-        todo!()
+        Self(self.0.inv_sbox_lookup())
     }
 }
 
