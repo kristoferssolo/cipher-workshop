@@ -8,6 +8,506 @@ const TEST_CIPHERTEXT: u128 = 0x34D3_F0EE_CB4D_FA16_CB8B_F07F_29A0_CB79;
 
 #[rstest]
 #[case(TEST_PLAINTEXT, TEST_CIPHERTEXT, TEST_KEY)]
+#[case(
+    0xc995_6e06_36f4_21e5_a86f_200a_8840_fcad,
+    0x23f7_3331_b41e_21ca_a1a3_4b9a_8cfd_7e50,
+    0xe8a2_325f_9977_c506_d0ba_3106_4992_91e0
+)]
+#[case(
+    0xa446_37df_3b9c_2e19_794d_da35_f0c7_c1c6,
+    0xbcf4_c8f0_c6e5_5a67_a776_2c64_65d8_4f57,
+    0x497c_8a01_d406_add1_6828_5bd4_9a46_e5ee
+)]
+#[case(
+    0xb636_003d_7ffd_da9c_cbf4_9699_61c8_5b7d,
+    0x656d_d476_1ccc_cc3b_2dc0_adb6_b84c_7897,
+    0x02ad_2efd_6cb9_8d3d_7591_73b4_32e9_bd94
+)]
+#[case(
+    0x64f7_2d73_d3e6_b1a2_b1fa_d4d8_3373_3c4f,
+    0xde4e_848a_b30f_a42e_cb89_a2f4_5b87_262b,
+    0xd87a_71eb_a1a0_f31c_bf6d_7f00_78bb_9c82
+)]
+#[case(
+    0xb806_e1f2_837c_5a6d_4acd_f906_0b10_773c,
+    0x4e39_c18d_f939_c200_062d_44a4_f6cc_f76d,
+    0x0bed_33c8_b038_c1dc_1de3_b680_3c8f_6476
+)]
+#[case(
+    0xf4e5_b77c_2d7f_b67a_9f2c_e919_9cd6_4d9b,
+    0x0f67_fe59_a24b_a92d_f1c7_3824_f55e_f3f9,
+    0x4521_1479_0ccf_f43f_2be5_19ef_f975_7385
+)]
+#[case(
+    0x7723_e107_18de_fff5_da8a_59fa_44be_16b9,
+    0xeeb9_150a_a145_40ed_f52a_7b5c_1b34_c18f,
+    0x74f5_716f_8923_61d2_3259_97e4_92ae_d75a
+)]
+#[case(
+    0xe2bd_1952_9505_5376_86ab_fc04_47b2_2655,
+    0x25ed_49cc_73e7_292e_6253_4510_0cd3_fa92,
+    0xdae5_5edd_af0f_0be7_ccc1_e9b2_8bd8_920a
+)]
+#[case(
+    0x9167_1588_15e5_6667_49ae_e2d5_0743_7957,
+    0x62f1_0993_fc59_e47e_e501_2286_e850_c47d,
+    0x6bd3_3a70_4b2c_9cdd_87c5_1bd1_0ba0_e7c9
+)]
+#[case(
+    0x477b_1a2c_59f3_0d05_f98a_9936_2d9e_8c2d,
+    0x7fff_9dbf_3ab6_608b_980b_06e6_5af6_8708,
+    0xd3a0_fcc0_51cc_05df_6740_246d_0d13_c8cb
+)]
+#[case(
+    0x3508_7da9_fe32_c551_9670_e16c_fe25_4b65,
+    0x6b0f_6291_2d34_0493_f4cf_71a4_9d5e_3dbd,
+    0x031e_b42c_8096_6eb6_d7c7_e97a_6e76_de2e
+)]
+#[case(
+    0x3759_fe15_111c_fff7_59bd_9752_c9aa_c13e,
+    0xc5d2_d9f7_e7a1_fd5c_8f56_c79d_8e25_7343,
+    0xb396_dd55_6327_2967_0707_f172_5858_d4a0
+)]
+#[case(
+    0x6e1c_bbb9_864d_1287_b9b9_c0ff_49a9_0cff,
+    0x6efd_9e2a_39fc_d138_d64e_e81f_5870_d8d4,
+    0x60e6_00a8_fe53_5460_0c4f_a32a_4d4e_8f4e
+)]
+#[case(
+    0x39e0_2559_e799_3359_b00c_95b9_f04e_d639,
+    0xef3e_1c9b_f455_c8dd_8944_25c3_d39b_596f,
+    0x2ace_3f45_689d_e422_4506_517d_35f3_4aa3
+)]
+#[case(
+    0x3d1c_0c3f_1693_f4b6_afe0_1591_2f4e_6fb9,
+    0xaad6_acf7_52d7_d212_f807_bcf7_7f6f_b0aa,
+    0xa6e8_f754_5e0d_bd4a_750a_4b22_378a_4a53
+)]
+#[case(
+    0x4045_2c98_ddbb_b222_99f1_a431_5b5b_d79b,
+    0x82b4_5d87_3007_9f7a_426d_3302_b5ee_ee9d,
+    0x3ea5_b2bd_2616_e00e_10ca_9668_944c_a7ae
+)]
+#[case(
+    0x2d32_f6d4_9861_9312_e812_b634_8c55_d5bf,
+    0x6dba_0d66_955f_6476_88cf_a4d2_6adb_9577,
+    0x9582_1faf_4c14_f9ac_8399_ec4d_2f4c_235c
+)]
+#[case(
+    0x85b8_3707_d91c_099f_27c2_c037_1f6a_ea06,
+    0x67d9_8151_43f0_2930_9400_b36d_08ee_a9ff,
+    0x0771_b4fc_c030_66af_d5ea_315a_42a0_99b0
+)]
+#[case(
+    0xc31b_e61f_b6d3_a8b4_e93b_93ca_c2f3_d38e,
+    0x5271_7ab5_d085_cb2c_0b6b_1ff2_f6a8_864c,
+    0xf9f3_2d4a_eb17_4cff_0a00_6485_5ef3_aeb3
+)]
+#[case(
+    0x3d20_3bd0_d8cb_2001_41e6_ea68_ca75_bba7,
+    0x2d54_c2be_baea_e524_e626_c19c_3e0f_dae1,
+    0x9d6a_ec94_39b5_8334_b275_ba4e_6dd6_a11b
+)]
+#[case(
+    0x1743_03ba_fc3f_1c39_3b20_6290_a005_d865,
+    0x3ab8_7058_64c4_a310_188c_0277_7e60_c46a,
+    0xaa1a_1622_79c0_c743_d70a_4736_14ee_dec4
+)]
+#[case(
+    0x2883_dd1d_0342_c4fe_d354_1b9f_8400_6e99,
+    0xba43_6e78_eb1d_d9a4_bb37_8642_7288_c4bf,
+    0xf723_6efa_b3ae_f1fa_df11_0edc_ce5c_2e13
+)]
+#[case(
+    0x2622_364f_7904_d4f1_a894_f34d_0cd7_5cd4,
+    0xa7a8_4f01_d9cc_6ac9_3d56_d1d4_e358_6fa7,
+    0x9fa2_299b_b1b3_dca2_e2f6_f539_6aae_5f13
+)]
+#[case(
+    0x0afb_b947_337d_ea95_5d6f_cae5_cb5a_da5a,
+    0x87c6_a7ca_f1c4_e509_bb8a_4502_53ec_8947,
+    0x80f9_dc19_7bf5_c514_47a0_4871_282b_d8a7
+)]
+#[case(
+    0xe582_b1a4_b8c1_e8bd_adb7_e789_b724_527c,
+    0xf086_d72a_0b19_17c8_7674_be46_e961_883b,
+    0x9ce4_15a6_3979_232d_8a03_c674_3b67_6b09
+)]
+#[case(
+    0x0352_45e6_88e0_0433_ad0b_b1fb_ec9c_7cb7,
+    0x592a_fff6_df2b_04c0_826e_a9b3_1f18_f696,
+    0xdf36_3091_4f98_e707_0cf2_a0ea_0a76_5993
+)]
+#[case(
+    0x79f1_c669_a2a2_6ead_f0e9_7d3c_5eef_3a79,
+    0x2674_30c3_c597_c88f_6a28_cf37_c65d_f66a,
+    0x20bb_45d4_2a28_9e09_0a01_dee2_293a_54a1
+)]
+#[case(
+    0xff0f_9e85_8714_12a9_87cd_9078_6875_8fb7,
+    0xf853_48e3_74a0_f0c5_3452_4aff_734f_d500,
+    0xfd41_0793_ad9c_75c4_54d8_f71e_537c_8326
+)]
+#[case(
+    0xb239_1ab0_8498_ef99_3a09_a80f_82b6_36d5,
+    0x1bb0_7ad4_1224_7dc9_b8ba_a737_881f_87f2,
+    0x1065_e594_c761_a78c_3498_5d96_778d_db0f
+)]
+#[case(
+    0x762b_417a_d64b_d2a1_2626_6453_c6f1_eae1,
+    0x883e_2a98_d2d0_8406_d913_76f0_6774_2258,
+    0xb37d_f0fb_3ee5_c380_0d8b_e088_d988_9224
+)]
+#[case(
+    0x7229_6205_458e_7927_abf9_dc8b_cf09_5e69,
+    0x737d_7f1b_c522_5e69_7168_60dc_e14e_b9aa,
+    0x29ae_3260_b4e1_bf58_666b_a103_c02f_728b
+)]
+#[case(
+    0x9d3d_e87e_d091_28eb_6e82_d541_adb1_fc29,
+    0xe2a7_b61b_2c55_929f_99d9_25be_4754_f9b3,
+    0xd331_c634_edc6_9fd6_54df_c95d_c368_a402
+)]
+#[case(
+    0x2c08_7e14_4961_d11a_66de_a3a0_a9dc_5a79,
+    0x832c_0bf9_9d97_4e85_56d3_6b47_eab6_be32,
+    0x469e_4b47_d77b_0440_20a8_ae33_13f8_afd6
+)]
+#[case(
+    0xcbe6_f3ff_305d_6268_52d4_1583_ad04_1225,
+    0xc31a_8c2b_f981_c905_f0d6_a41a_0761_275b,
+    0x78d2_1c57_51fe_e994_200d_88ff_db77_9f3a
+)]
+#[case(
+    0x94ca_cc9c_173b_e6fa_cd62_361c_fb71_0592,
+    0x3555_3a97_2449_ae51_073a_41a4_e82e_fe34,
+    0xd001_c062_0fba_6268_6048_076c_2e39_800e
+)]
+#[case(
+    0xa85c_08b2_ae68_bfc8_543b_0fcb_b1a0_f849,
+    0xea42_a5ab_9c71_33f2_1e07_9237_b104_d988,
+    0x9d01_2ad3_8017_fbbc_bc0e_8ba6_bbe1_7425
+)]
+#[case(
+    0x26d7_ce31_2b91_8fc0_3c83_e3e1_98bc_8e4a,
+    0xa870_7080_2ce1_cda5_7351_fd48_d453_d0ad,
+    0x77b0_df80_ced9_0168_6b38_09d6_5866_55be
+)]
+#[case(
+    0xbd1e_ff51_062c_f318_cf17_9928_bf92_09ca,
+    0x2ad4_47d2_6360_6c05_ea9b_0cf0_c4fc_c009,
+    0x792e_1b82_4c6e_7e35_4942_1c3c_3291_c41b
+)]
+#[case(
+    0xfdc1_8356_2134_8fb4_757d_e1c7_dbbb_6ca7,
+    0x3be9_c01d_3454_697b_f7e8_106f_bbad_bf85,
+    0x6f8a_c390_e1d5_3fed_d79c_e0bc_2066_5505
+)]
+#[case(
+    0x3cb8_d282_b498_a4a1_1892_5ec1_0803_ccfa,
+    0x09f4_ea08_e6b8_3d44_4edd_8e2e_82f6_cdfb,
+    0x0f6f_4dca_e885_90ad_7a65_d815_1dde_a0b2
+)]
+#[case(
+    0xf12d_ff1d_741b_db09_3f7e_e5d1_8921_158c,
+    0x71ab_6879_1b46_12d4_06c9_db0d_bc88_51e4,
+    0x8b12_f8e3_b88c_aba5_121d_3a07_61ee_34ce
+)]
+#[case(
+    0x0f81_9be4_6517_25fd_7c59_3457_9f35_2b2c,
+    0xdc51_c7f1_24ab_5ef7_39d1_8064_7490_fae3,
+    0x295c_623a_4c89_86bd_409e_b797_645e_635e
+)]
+#[case(
+    0x2be6_9aad_7be6_9c33_48a3_b7a5_4fb2_0fe9,
+    0x2e3e_940a_6e58_0a40_3c3c_065c_a40a_87f3,
+    0x7984_df1a_a496_80be_cb63_eabe_e1fe_c7d2
+)]
+#[case(
+    0x0798_d3b2_e0bd_80f4_5fff_61b6_0928_b33f,
+    0xca86_4b47_e996_6941_b5f8_ab36_4fdf_a2d2,
+    0xfcd8_df3e_9141_f0e7_8a64_42f7_53e3_3f53
+)]
+#[case(
+    0x6fe1_26b0_049b_85a7_75bc_0887_c6d0_b0a2,
+    0xa66c_17b8_f2de_e8fa_be95_dce5_122f_0b5b,
+    0x6140_6a3f_6eee_ef93_5176_8ab3_c1db_d9bd
+)]
+#[case(
+    0x7148_5b8a_1c5d_db5b_7287_d006_5104_c7d5,
+    0x34b4_9e1a_b8bd_956a_24f6_3079_a09c_c991,
+    0x4c78_3c69_bbc9_e665_846a_27c6_e7ec_8d15
+)]
+#[case(
+    0x54d4_d5e5_bbb9_8b0c_d756_6a24_ead8_5c8c,
+    0x2027_373a_0ca8_d92f_fbdd_5cc2_3ad7_ded6,
+    0xb8e8_f0a6_e27c_d12f_7834_d2a3_ff2b_bbb6
+)]
+#[case(
+    0xa984_86a8_57fb_270e_3c09_f460_e053_75c8,
+    0xa4fc_20f7_24e9_6880_08f9_08c9_2578_afc7,
+    0x4416_af81_33bd_16af_2bbd_0a9e_f12c_868b
+)]
+#[case(
+    0x8426_501a_ed63_82fe_1e87_46dd_6a7d_b505,
+    0x8928_7813_4ae1_2383_1900_696a_4438_6c86,
+    0x8599_461a_064a_2435_2c61_85e2_c6e3_5081
+)]
+#[case(
+    0x78b8_b3db_536e_60d4_dba4_4f41_9e3c_ae66,
+    0xf9fa_5d96_c30d_5a84_6cc6_b031_2d82_2fec,
+    0x49f0_3dab_84f3_5712_8c34_5821_9c82_4c10
+)]
+#[case(
+    0xdb66_2922_7b86_e22a_4534_373c_71da_9bb9,
+    0xba5a_d5ae_bd19_c8f8_a622_e7bb_2426_e545,
+    0xeb73_6ab6_e4ec_66f7_ca41_67bd_656f_803b
+)]
+#[case(
+    0x0f6d_dacf_c255_0915_3eb7_b1b9_a2e5_2c83,
+    0x3f30_8b68_e7d4_7e95_8906_b187_33e0_b9b5,
+    0x73d3_ea81_f8ec_8d70_d08c_df37_00fa_5312
+)]
+#[case(
+    0x50e3_4af8_8d0b_f2cd_c3f4_0ef0_d85a_7583,
+    0xad64_fb9b_8640_454f_479b_df17_0c9a_112a,
+    0xabca_f0c2_b736_9b34_ba1e_7f18_eaf8_7c14
+)]
+#[case(
+    0x9dff_2b6c_96fa_b1e1_250c_a26a_7c46_ca74,
+    0x823a_7e97_ba64_d770_f8e0_cfe3_4878_e9f4,
+    0x1ec7_6907_8eab_b283_ac8b_345b_31c5_5406
+)]
+#[case(
+    0xc2d6_4680_14e2_8a79_ccc3_e3a6_c5cc_b177,
+    0xbbc9_d28b_c5ec_0de9_2cdd_a2fb_ec73_9aff,
+    0xe891_9510_5fc2_bbac_4741_75bd_2527_4412
+)]
+#[case(
+    0xacac_597e_26dd_3c7e_dd8a_062c_3d7b_5e85,
+    0xb7c8_cdf7_0405_d0eb_e785_189c_7d5a_8951,
+    0xa8f8_c92d_8ad2_9223_1c28_6b8f_778e_4069
+)]
+#[case(
+    0xb5dd_6672_1244_973e_d419_38c3_51f2_6da5,
+    0x2a19_3232_cdda_0dbd_7478_49b2_9490_b9a0,
+    0x01d3_de6b_aa75_a6d2_d0fa_a830_e023_c9ec
+)]
+#[case(
+    0x7eba_0876_c83f_461a_116b_30eb_9a72_9b22,
+    0xbef5_f522_de76_c7ef_2b23_1bfb_9cec_05ed,
+    0x36fd_9e36_cece_211c_e3d8_12ef_a895_dc14
+)]
+#[case(
+    0x4ba1_023f_90a0_5ea8_3550_4ccd_c9e2_0e39,
+    0x5a53_7d9e_45ca_8ed9_0f13_f197_6680_8095,
+    0x08e0_e63a_dda2_a811_a24e_30dd_e349_54ea
+)]
+#[case(
+    0x941a_9aaa_1204_a285_9262_a2a5_394a_40bb,
+    0x5dbc_88d3_2282_4fd5_be64_9611_fd8c_d0a5,
+    0x277c_367d_f9db_015f_4d28_58ac_1e0f_5a5b
+)]
+#[case(
+    0xe4c6_89b5_28d2_8199_d026_8a66_66ff_9f98,
+    0x1f75_54a7_135f_af28_2a26_70d4_3d94_5f8b,
+    0x78a5_184a_63c9_c668_86e7_27b6_6688_6bcd
+)]
+#[case(
+    0xacff_75dc_e700_e38a_1414_a566_de17_6e09,
+    0x26a3_dc88_4192_3274_1442_b845_4f26_f9a0,
+    0x1a70_07a9_4f49_aa41_66b0_5270_2820_18f9
+)]
+#[case(
+    0xc682_3024_7185_6ab0_8c97_059a_0f0c_157d,
+    0xdf4a_2ff1_0ca1_773b_c72e_9ac2_1e97_e5d1,
+    0x9e9f_9475_7cd0_87ad_e0d9_d3ba_e56f_26e6
+)]
+#[case(
+    0xbaca_11a4_7b1e_6a58_4bc5_8a89_9e06_4854,
+    0x0489_cf0b_cae7_5024_4d3c_b889_5fbc_5aa7,
+    0x92ae_7575_1fbb_3c1d_1bfe_125b_e649_b131
+)]
+#[case(
+    0x771b_c01f_1a07_ce45_2001_009b_38c2_1260,
+    0x8589_d79d_3e69_36b8_c29e_3628_bbb3_2ce9,
+    0xbd5c_6048_0c40_1335_e317_1b2a_3f5c_0cca
+)]
+#[case(
+    0xc3b1_955b_4d57_0310_cf16_1770_c90d_6a06,
+    0x05dc_1741_1c5f_4343_bbb8_9329_6388_ab26,
+    0xc193_0430_a212_e822_275d_54ee_ac7a_2025
+)]
+#[case(
+    0xbe7d_d5d7_2589_2e9f_1235_1b58_bff8_a624,
+    0x4a9c_3496_6c6d_7cdf_6673_7f40_c564_72bf,
+    0xfb6d_7b2e_3d9f_08d0_9d74_d1e4_bef7_bd02
+)]
+#[case(
+    0xb9ab_1626_2e93_a10e_5626_5f7c_5af9_749c,
+    0x28c8_06ff_ddae_c8e2_5a98_eb6f_ddf6_ab85,
+    0x973f_5b75_56cf_6898_b884_bd0a_1057_26c7
+)]
+#[case(
+    0x799f_0a4d_91bb_dadb_6890_0638_3925_8726,
+    0x1918_d4e4_1390_3565_b519_a3f5_ef56_2a35,
+    0xa843_2587_5845_1a94_6e24_67b0_91a6_a19c
+)]
+#[case(
+    0x565e_4906_9e33_5c3f_ebed_b255_f26b_5a7b,
+    0xf731_3a23_7f02_b961_3567_a76a_9138_3285,
+    0xdfc3_9a4c_6d47_2e6f_55b2_2a63_46f4_0ec0
+)]
+#[case(
+    0x5d26_c016_515d_9fed_590e_7925_d268_7eb5,
+    0x9c6d_cc04_3fb8_c1fd_bf17_1e98_4b3c_71a9,
+    0xf12c_006d_2f8a_125e_16e0_5811_3698_ccd2
+)]
+#[case(
+    0x3b8f_5864_c974_7353_35bb_1511_5b6f_60ed,
+    0xbc36_b515_64f6_d4f5_a60a_c369_f035_d68c,
+    0x2f7d_d0d2_d38d_718f_602e_db9f_bbae_c64e
+)]
+#[case(
+    0xbdb6_725d_405c_8648_167a_2f7b_9d6f_a7a2,
+    0x4214_d2eb_ddb2_9b3a_5fd7_878f_1aa2_8b69,
+    0x9e14_e485_2c7b_86e9_d8a8_a6b8_57bf_766d
+)]
+#[case(
+    0x935d_3d39_31fb_76b6_a1fe_69ea_084e_b409,
+    0x7556_e51b_1a37_5c60_7798_44cb_9897_2e2c,
+    0xc5b0_658f_367c_43fd_961a_f4fe_9866_4cd9
+)]
+#[case(
+    0x40c9_ecac_8b3f_889c_ac2d_4311_cdb3_60fe,
+    0x9534_69b5_0f06_13a9_652b_99ed_3315_6d95,
+    0xff4a_53c8_a1cf_496b_99ad_ae5f_c782_5c9f
+)]
+#[case(
+    0x84e3_bf12_a262_a492_6543_645f_f0fd_42af,
+    0x8c95_98ad_a565_fbd4_6d50_e1bc_1a1b_95d4,
+    0x1fd5_9c40_ef82_e15b_dfc1_5dcb_b2f2_89a1
+)]
+#[case(
+    0x0c7a_d581_98ba_0c29_6ce4_9b55_b18d_f4b2,
+    0x2019_4ecb_e8f0_06f0_66d9_6960_b5b9_0df9,
+    0x90af_e5ef_1e40_1fe7_d928_b154_afec_5dba
+)]
+#[case(
+    0x9a20_c2d1_cb41_f2e6_73cb_2763_3c89_3016,
+    0x3487_602b_b168_f949_385d_3625_9ee3_5ae4,
+    0xb2c0_06a0_7b24_41e7_a15c_dfb8_b52c_f81b
+)]
+#[case(
+    0x5e38_5622_ab04_a81b_ea9c_e71d_99e0_c59c,
+    0x7248_6d37_7ea7_30f1_bf02_5be4_ef09_33c1,
+    0x84d6_8399_b846_320d_e5e3_e12e_202b_b775
+)]
+#[case(
+    0x8452_bd85_0093_5b59_a054_e47c_3fde_14ec,
+    0x333b_6bdf_2dd0_3147_37f7_b7d8_5ce9_34f1,
+    0x11b6_5150_bb13_8cdc_6da7_8ee3_f9cd_ba7f
+)]
+#[case(
+    0x892e_5aeb_7455_6f46_90fd_5035_87b0_a880,
+    0x2307_2bcf_228e_a1b6_a6fd_71f3_7a74_204f,
+    0xab2a_a416_e0bb_a673_e37d_ae0c_6f1d_2783
+)]
+#[case(
+    0xa24a_750e_2cde_e9d0_7207_e1ca_0d39_7bea,
+    0xb0bb_7ceb_3a28_3197_c20c_5559_3b12_32fe,
+    0x536b_80d9_fb0c_ef24_94d3_defd_ed21_653b
+)]
+#[case(
+    0x4ec1_c12c_5997_d96f_0a48_0060_52fb_dfdd,
+    0xa81f_e153_fed2_8183_d25b_8627_8c60_2423,
+    0x2354_c86c_2894_9505_feef_d545_1497_9561
+)]
+#[case(
+    0x4921_4877_b6f8_0e8d_6f5a_0f20_acfd_21aa,
+    0x8330_d8e5_f5a1_5c64_964c_20c7_3bc3_686d,
+    0xf2bd_6d53_42c4_373b_d08c_0315_6d1b_04ab
+)]
+#[case(
+    0x2da2_4d52_3455_ca01_6891_73db_8a97_edd3,
+    0x13d3_d844_6bcc_085e_1ccc_6219_1ec8_515f,
+    0xa773_a9a2_3d66_1daa_3df8_ad0c_3717_2276
+)]
+#[case(
+    0xc8a5_78ab_da01_2916_0939_3960_5922_826f,
+    0x2c40_df2f_0c14_45c4_a95b_ab22_cbe1_354f,
+    0x4547_fb22_9c85_19f4_ce26_2b40_6ac9_22e9
+)]
+#[case(
+    0x776f_4141_bf71_3414_4107_46f3_6234_343a,
+    0x7e19_11b2_91ea_8678_a7d0_aedf_a1bf_717e,
+    0x6115_eb47_810d_d380_674f_b5f7_26cc_8b7b
+)]
+#[case(
+    0xb4a8_0931_d446_f202_2cf0_8f12_66a3_d097,
+    0xb898_bb3c_b8d8_ceda_e41b_38f2_864a_58cb,
+    0x2f47_fe50_98bf_dd6c_7bff_a1b1_3968_2622
+)]
+#[case(
+    0xddbd_f44b_6dca_345a_e14c_7104_83c9_8f09,
+    0x9584_c22e_d771_c480_4b9e_b926_83d0_85fc,
+    0x2130_d6c4_f257_ac00_0cf8_7a60_e375_1f09
+)]
+#[case(
+    0xf8c6_4f7d_fa0d_7c00_38f1_01a4_21e3_0d41,
+    0x7e92_b950_0b25_117e_4154_7c0d_d1be_b526,
+    0x8957_7e14_2c88_3eb9_ea2c_ab9f_0d1a_7198
+)]
+#[case(
+    0x8442_d7b0_b46f_aa3c_13c6_312c_bfa4_4f6a,
+    0x16d9_c998_784f_5f63_7664_03e0_a5f4_ff6e,
+    0xdad6_1c24_cf06_da31_bd32_4004_4a70_0e5b
+)]
+#[case(
+    0xbf45_639d_0a86_964c_b93b_0fd2_2066_832b,
+    0xe744_6371_ae3f_9770_3355_d859_6b87_ead6,
+    0x76f9_f44f_c1b0_b352_25c0_6be4_a49f_3f25
+)]
+#[case(
+    0xad88_3730_0c4c_9b15_9cd3_3542_d743_68e8,
+    0xc67b_d78a_f931_b390_3dfe_d56d_324b_152c,
+    0x9f50_73ee_d2cc_019b_ecca_6bf6_5bd9_4049
+)]
+#[case(
+    0x04d1_0af4_bbed_252f_d697_1350_793b_fa65,
+    0x66eb_f5e3_9001_dc47_e967_26be_0adc_bf77,
+    0x966f_6ccc_40ce_fa6f_5cc7_50c5_a18f_7da2
+)]
+#[case(
+    0x5af8_ade6_0200_0f19_e8e4_03f4_3b1d_9cbc,
+    0x614c_f6de_2e44_cfba_ef67_0efb_187d_b045,
+    0xa2a7_6e1f_0368_9ccf_6e33_10f9_eb60_60f5
+)]
+#[case(
+    0x94ba_1188_8473_3569_b1d1_9f71_af92_3585,
+    0xfcc7_5d93_2265_af02_6127_d4d8_6335_b637,
+    0x5ad0_638a_ff24_a6ca_c598_c657_6d08_255d
+)]
+#[case(
+    0x3512_77ce_76a9_7acc_c41d_ac92_cf29_a0cf,
+    0xfa66_7bbb_da30_05d9_4961_d060_bc70_4c24,
+    0xf99a_56d8_6aaf_1963_878b_e23f_6244_ec64
+)]
+#[case(
+    0x61f4_fe02_8e49_a614_296e_52c1_34ce_7ecd,
+    0x8fab_ba2a_987e_f025_1610_65ae_c858_fada,
+    0xc6b3_947d_ac97_7919_7d85_1f7d_702a_a391
+)]
+#[case(
+    0x6b55_1f84_f833_cd69_764a_5efa_ba7d_a581,
+    0xdc7c_7834_6d6b_2671_d7cd_fbba_4128_d658,
+    0x6b60_9ad4_e180_2b8f_1f2b_ddb6_3810_d642
+)]
+#[case(
+    0xe287_07eb_09ef_d6f5_a747_0121_9925_524a,
+    0x4cbb_aa82_64e5_f445_8da3_c570_6ece_e207,
+    0x36cb_e81a_3470_c872_3a48_8893_b8ee_bd65
+)]
 fn encrypt_decrypt_roundtrip(
     #[case] plaintext: u128,
     #[case] expected_ciphertext: u128,
