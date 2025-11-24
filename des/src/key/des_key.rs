@@ -1,6 +1,8 @@
 use std::fmt::Debug;
 use zeroize::ZeroizeOnDrop;
 
+use crate::Block64;
+
 /// 64-bit Key for DES
 #[derive(ZeroizeOnDrop)]
 pub struct Key([u8; 8]);
@@ -36,13 +38,19 @@ impl From<&[u8]> for Key {
         let mut bytes = [0; 8];
         let len = value.len().min(8);
         bytes[..len].copy_from_slice(&value[..len]);
-        Self(bytes)
+        bytes.into()
     }
 }
 
 impl From<u64> for Key {
     fn from(key: u64) -> Self {
-        Self(key.to_be_bytes())
+        key.to_be_bytes().into()
+    }
+}
+
+impl From<Block64> for Key {
+    fn from(key: Block64) -> Self {
+        key.to_be_bytes().into()
     }
 }
 

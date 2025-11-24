@@ -10,6 +10,10 @@ pub enum CipherError {
     /// Input data doesn't match the cipher's block size
     #[error("Invalid block size: expected {expected} bytes, got {actual}")]
     InvalidBlockSize { expected: usize, actual: usize },
+
+    /// Error parsing block from string
+    #[error("Error parsing block from string: {0}")]
+    BlockParseError(#[from] BlockError),
 }
 
 impl CipherError {

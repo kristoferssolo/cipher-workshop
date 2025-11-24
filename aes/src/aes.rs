@@ -19,6 +19,12 @@ impl Aes {
         }
     }
 
+    #[inline]
+    #[must_use]
+    pub fn from_key(key: impl Into<Key>) -> Self {
+        Self::new(key)
+    }
+
     #[cfg(test)]
     #[inline]
     #[must_use]
@@ -66,9 +72,8 @@ impl Aes {
 }
 
 impl BlockCipher for Aes {
-    const BLOCK_SIZE: usize = 16;
-    fn from_key(key: &[u8]) -> Self {
-        Self::new(key)
+    fn block_size(&self) -> usize {
+        16
     }
 
     fn transform_impl(
@@ -76,9 +81,10 @@ impl BlockCipher for Aes {
         block: &[u8],
         action: cipher_core::CipherAction,
     ) -> cipher_core::CipherResult<cipher_core::Output> {
-        let block_arr: [u8; Self::BLOCK_SIZE] = block
+        let block_size = self.block_size();
+        let block_arr: [u8; 16] = block
             .try_into()
-            .map_err(|_| CipherError::invalid_block_size(Self::BLOCK_SIZE, block.len()))?;
+            .map_err(|_| CipherError::invalid_block_size(block_size, block.len()))?;
 
         let block128 = Block128::from_be_bytes(block_arr);
 

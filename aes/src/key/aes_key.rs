@@ -1,6 +1,8 @@
 use std::fmt::Debug;
 use zeroize::ZeroizeOnDrop;
 
+use crate::Block128;
+
 /// 128-bit Key for AES
 #[derive(ZeroizeOnDrop)]
 pub struct Key([u8; 16]);
@@ -63,6 +65,12 @@ impl From<&[u8]> for Key {
 
 impl From<u128> for Key {
     fn from(key: u128) -> Self {
+        key.to_be_bytes().into()
+    }
+}
+
+impl From<Block128> for Key {
+    fn from(key: Block128) -> Self {
         key.to_be_bytes().into()
     }
 }

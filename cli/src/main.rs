@@ -1,13 +1,10 @@
 mod args;
 
 use crate::args::Args;
-use aes::{Aes, Block128};
 use cipher_core::BlockCipher;
-use cipher_factory::{Algorithm, OperationChoice, OutputFormat};
+use cipher_factory::{self, OperationChoice, OutputFormat};
 use clap::Parser;
 use color_eyre::eyre::{Ok, Result};
-use des::{Block64, Des};
-use std::str::FromStr;
 
 fn main() -> Result<()> {
     color_eyre::install()?;
@@ -19,26 +16,17 @@ fn main() -> Result<()> {
         output_format,
     } = Args::parse();
 
-    match algorithm {
-        Algorithm::Des => {
-            let key = Block64::from_str(&key)?;
-            let text = Block64::from_str(&text)?;
-            let cipher = Des::from_key(&key.to_be_bytes());
-            execute_cipher(operation, &cipher, &text.to_be_bytes(), output_format)?;
-        }
-        Algorithm::Aes => {
-            let key = Block128::from_str(&key)?;
-            let text = Block128::from_str(&text)?;
-            let cipher = Aes::from_key(&key.to_be_bytes());
-            execute_cipher(operation, &cipher, &text.to_be_bytes(), output_format)?;
-        }
-    }
+    let text_bytes = algorithm.parse_text(&text)?;
+    let cipher = algorithm.new_cipher(&key)?;
+
+    execute_cipher(operation, cipher.as_ref(), &text_bytes, output_format)?;
+
     Ok(())
 }
 
 fn execute_cipher(
     operation: OperationChoice,
-    cipher: &impl BlockCipher,
+    cipher: &dyn BlockCipher,
     text_bytes: &[u8],
     output_format: Option<OutputFormat>,
 ) -> Result<()> {

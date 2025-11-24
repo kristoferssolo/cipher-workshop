@@ -32,13 +32,17 @@ impl Des {
         let subkeys = Subkeys::from_key(&key.into());
         Self { subkeys }
     }
+
+    #[inline]
+    #[must_use]
+    pub fn from_key(key: impl Into<Key>) -> Self {
+        Self::new(key)
+    }
 }
 
 impl BlockCipher for Des {
-    const BLOCK_SIZE: usize = 8;
-
-    fn from_key(key: &[u8]) -> Self {
-        Self::new(key)
+    fn block_size(&self) -> usize {
+        8
     }
 
     fn transform_impl(
@@ -46,9 +50,10 @@ impl BlockCipher for Des {
         block: &[u8],
         action: cipher_core::CipherAction,
     ) -> cipher_core::CipherResult<cipher_core::Output> {
-        let block_arr: [u8; Self::BLOCK_SIZE] = block
+        let block_size = self.block_size();
+        let block_arr: [u8; 8] = block
             .try_into()
-            .map_err(|_| CipherError::invalid_block_size(Self::BLOCK_SIZE, block.len()))?;
+            .map_err(|_| CipherError::invalid_block_size(block_size, block.len()))?;
         let block64 = Block64::from_be_bytes(block_arr);
         let permutated_block = ip(block64);
 

@@ -6,9 +6,7 @@ use crate::{CipherAction, CipherError, CipherResult, Output};
 /// Implementers define `transform_impl` to handle the core algorithm,
 /// while `transform` provides validation and convenience wrappers.
 pub trait BlockCipher {
-    const BLOCK_SIZE: usize;
-
-    fn from_key(key: &[u8]) -> Self;
+    fn block_size(&self) -> usize;
 
     /// Core cipher transformation (must be implemented by concrete types).
     ///
@@ -24,13 +22,11 @@ pub trait BlockCipher {
     ///
     /// # Errors
     ///
-    /// Returns `CipherError::InvalidBlockSize` if `block.len() != BLOCK_SIZE`.
+    /// Returns `CipherError::InvalidBlockSize` if `block.len() != self.block_size()`.
     fn transform(&self, block: &[u8], action: CipherAction) -> CipherResult<Output> {
-        if block.len() != Self::BLOCK_SIZE {
-            return Err(CipherError::invalid_block_size(
-                Self::BLOCK_SIZE,
-                block.len(),
-            ));
+        let block_size = self.block_size();
+        if block.len() != block_size {
+            return Err(CipherError::invalid_block_size(block_size, block.len()));
         }
         self.transform_impl(block, action)
     }
