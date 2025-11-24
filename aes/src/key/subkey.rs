@@ -1,5 +1,5 @@
 use crate::key::secret_key;
-use std::ops::BitXor;
+use std::ops::{BitOr, BitXor, Shl};
 
 secret_key! {
     /// A single AES round subkey
@@ -45,5 +45,19 @@ impl BitXor for Subkey {
     type Output = Self;
     fn bitxor(self, rhs: Self) -> Self::Output {
         Self(self.0 ^ rhs.as_u32())
+    }
+}
+
+impl Shl<i32> for Subkey {
+    type Output = u128;
+    fn shl(self, rhs: i32) -> Self::Output {
+        self.as_u128() << rhs
+    }
+}
+
+impl BitOr<Subkey> for u128 {
+    type Output = Self;
+    fn bitor(self, rhs: Subkey) -> Self::Output {
+        self | rhs.as_u128()
     }
 }

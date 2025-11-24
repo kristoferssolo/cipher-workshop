@@ -26,7 +26,7 @@ impl Aes {
         &self.subkeys
     }
 
-    fn encryot_block(&self, mut state: Block128) -> Block128 {
+    fn encrypt_block(&self, mut state: Block128) -> Block128 {
         let mut keys = self.subkeys.chunks();
         state = add_round_key(state, keys.next().expect("Round key 0"));
 
@@ -45,8 +45,8 @@ impl Aes {
         state
     }
 
-    fn decryot_block(&self, mut state: Block128) -> Block128 {
-        let mut keys = self.subkeys.chunks();
+    fn decrypt_block(&self, mut state: Block128) -> Block128 {
+        let mut keys = self.subkeys.chunks_rev();
         state = add_round_key(state, keys.next().expect("Final round key"));
 
         for _ in 1..10 {
@@ -83,8 +83,8 @@ impl BlockCipher for Aes {
         let block128 = Block128::from_be_bytes(block_arr);
 
         let result = match action {
-            CipherAction::Encrypt => self.encryot_block(block128),
-            CipherAction::Decrypt => self.decryot_block(block128),
+            CipherAction::Encrypt => self.encrypt_block(block128),
+            CipherAction::Decrypt => self.decrypt_block(block128),
         };
 
         Ok(result.into())

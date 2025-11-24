@@ -4,6 +4,7 @@ use crate::{
 };
 use cipher_core::{BlockError, InputBlock};
 use std::{
+    ops::BitXor,
     slice::{from_raw_parts, from_raw_parts_mut},
     str::FromStr,
 };
@@ -145,5 +146,12 @@ impl From<Block128> for Vec<u8> {
 impl From<&Block128> for Vec<u8> {
     fn from(value: &Block128) -> Self {
         value.to_be_bytes().to_vec()
+    }
+}
+
+impl BitXor<u128> for Block128 {
+    type Output = Self;
+    fn bitxor(self, rhs: u128) -> Self::Output {
+        Self(self.0 ^ rhs)
     }
 }
