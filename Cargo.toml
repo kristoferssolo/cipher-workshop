@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["aes", "cipher-core", "cli", "des", "tui"]
+members = ["aes", "cipher-core", "cli", "des"]
 
 [workspace.dependencies]
 aes = { path = "aes" }
