@@ -18,9 +18,9 @@ impl OutputFormat {
     #[must_use]
     pub fn to_string(&self, value: &Output) -> String {
         match self {
-            Self::Binary => format!("{value:064b}"),
-            Self::Octal => format!("{value:022o}"),
-            Self::Hex => format!("{value:016X}"),
+            Self::Binary => format!("{value:b}"),
+            Self::Octal => format!("{value:o}"),
+            Self::Hex => format!("{value:X}"),
             Self::Text => format!("{value}"),
         }
     }

@@ -5,7 +5,7 @@ use crate::{CipherAction, CipherError, CipherResult, Output};
 /// Implements the standard encrypt/decrypt interface for block ciphers.
 /// Implementers define `transform_impl` to handle the core algorithm,
 /// while `transform` provides validation and convenience wrappers.
-pub trait BlockCipher: Sized {
+pub trait BlockCipher {
     const BLOCK_SIZE: usize;
 
     fn from_key(key: &[u8]) -> Self;

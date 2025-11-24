@@ -1,7 +1,5 @@
 use cipher_factory::{Algorithm, OperationChoice, OutputFormat};
 use clap::Parser;
-use des::Block64;
-use std::str::FromStr;
 
 #[derive(Debug, Clone, Parser)]
 #[command(version, about, long_about = None)]
@@ -15,12 +13,12 @@ pub struct Args {
     pub algorithm: Algorithm,
 
     /// Key used for encryption/decryption. Can be a string or a path to a file
-    #[arg(short, long, value_parser = Block64::from_str, required = true)]
-    pub key: Block64,
+    #[arg(short, long, required = true)]
+    pub key: String,
 
     /// The text to encrypt/decrypt. Can be a string or a path to a file
-    #[arg(value_name = "TEXT", value_parser = Block64::from_str, required = true)]
-    pub text: Block64,
+    #[arg(value_name = "TEXT", required = true)]
+    pub text: String,
 
     /// Output format for decrypted data
     #[arg(short = 'f', long)]

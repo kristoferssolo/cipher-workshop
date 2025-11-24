@@ -107,7 +107,7 @@ fn parse_radix(s: &str, radix: u32) -> Result<u128, BlockError> {
 }
 
 fn ascii_string_to_u128(s: &str) -> Result<u128, BlockError> {
-    if s.len() > 8 {
+    if s.len() > 16 {
         return Err(BlockError::InvalidByteStringLength(s.len()));
     }
 
