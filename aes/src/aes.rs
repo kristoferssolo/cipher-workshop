@@ -1,9 +1,12 @@
 use crate::{
     Block128,
-    key::{Key, Subkey, Subkeys},
-    sbox::SboxLookup,
+    key::{Key, Subkeys},
+    operations::{
+        add_round_key, inv_mix_columns, inv_shift_rows, inv_sub_bytes, mix_columns, shift_rows,
+        sub_bytes,
+    },
 };
-use cipher_core::{BlockCipher, CipherError};
+use cipher_core::{BlockCipher, CipherAction, CipherError};
 
 pub struct Aes {
     subkeys: Subkeys,
@@ -16,20 +19,27 @@ impl Aes {
         }
     }
 
+    #[cfg(test)]
+    #[inline]
+    #[must_use]
+    pub const fn subkeys(&self) -> &Subkeys {
+        &self.subkeys
+    }
+
     fn encryot_block(&self, mut state: Block128) -> Block128 {
         let mut keys = self.subkeys.chunks();
         state = add_round_key(state, keys.next().expect("Round key 0"));
 
         for _ in 1..10 {
-            state = state.sub_bytes();
-            state = state.shift_rows();
-            state = state.mix_columns();
+            state = sub_bytes(state);
+            state = shift_rows(state);
+            state = mix_columns(state);
             state = add_round_key(state, keys.next().expect("Round key"));
         }
 
         // Final round: SubBytes, ShiftRows, AddRoundKey (no MixColumns)
-        state = state.sub_bytes();
-        state = state.shift_rows();
+        state = sub_bytes(state);
+        state = shift_rows(state);
         state = add_round_key(state, keys.next().expect("Final Round key"));
 
         state
@@ -40,15 +50,15 @@ impl Aes {
         state = add_round_key(state, keys.next().expect("Final round key"));
 
         for _ in 1..10 {
-            state = state.inv_shift_rows();
-            state = state.inv_sub_bytes();
+            state = inv_shift_rows(state);
+            state = inv_sub_bytes(state);
             state = add_round_key(state, keys.next().expect("Round key"));
-            state = state.inv_mix_columns();
+            state = inv_mix_columns(state);
         }
 
         // Final round: SubBytes, ShiftRows, AddRoundKey (no MixColumns)
-        state = state.inv_shift_rows();
-        state = state.inv_sub_bytes();
+        state = inv_shift_rows(state);
+        state = inv_sub_bytes(state);
         state = add_round_key(state, keys.next().expect("Round key 0"));
 
         state
@@ -73,50 +83,10 @@ impl BlockCipher for Aes {
         let block128 = Block128::from_be_bytes(block_arr);
 
         let result = match action {
-            cipher_core::CipherAction::Encrypt => self.encryot_block(block128),
-            cipher_core::CipherAction::Decrypt => self.decryot_block(block128),
+            CipherAction::Encrypt => self.encryot_block(block128),
+            CipherAction::Decrypt => self.decryot_block(block128),
         };
 
         Ok(result.into())
-    }
-}
-
-const fn add_round_key(state: Block128, subkeys: &[Subkey; 4]) -> Block128 {
-    let k0 = subkeys[0].as_u128();
-    let k1 = subkeys[1].as_u128();
-    let k2 = subkeys[2].as_u128();
-    let k3 = subkeys[3].as_u128();
-    let key_block = (k0 << 96) | (k1 << 64) | (k2 << 32) | k3;
-    Block128::new(state.as_u128() ^ key_block)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use rstest::rstest;
-
-    const TEST_KEY: u128 = 0x2B7E_1516_28AE_D2A6_ABF7_1588_09CF_4F3C;
-
-    #[rstest]
-    #[case(0x0000_0000_0000_0000_0000_0000_0000_0000)]
-    #[case(0xFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF)]
-    #[case(0x1234_5678_9ABC_DEF0_1234_5678_9ABC_DEF0)]
-    fn add_round_key_roundtrip(#[case] plaintext: u128) {
-        let aes = Aes::new(TEST_KEY);
-        let state = Block128::new(plaintext);
-
-        // Get first round key
-        let mut keys = aes.subkeys.chunks();
-        let first_key = keys.next().expect("First round key");
-
-        // AddRoundKey twice should return to original
-        let xored_once = add_round_key(state, first_key);
-        let xored_twice = add_round_key(xored_once, first_key);
-
-        assert_eq!(
-            xored_twice.as_u128(),
-            plaintext,
-            "AddRoundKey should be self-inverse (double XOR returns to original)"
-        );
     }
 }
