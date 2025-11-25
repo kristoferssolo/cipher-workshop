@@ -1,5 +1,8 @@
 mod algorithm;
+mod context;
 mod operation;
 mod output;
 
-pub use {algorithm::Algorithm, operation::OperationChoice, output::OutputFormat};
+pub use {
+    algorithm::Algorithm, context::CipherContext, operation::OperationChoice, output::OutputFormat,
+};

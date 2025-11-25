@@ -1,4 +1,4 @@
-use cipher_factory::{Algorithm, OperationChoice, OutputFormat};
+use cipher_factory::{Algorithm, CipherContext, OperationChoice, OutputFormat};
 use clap::Parser;
 
 #[derive(Debug, Clone, Parser)]
@@ -23,4 +23,16 @@ pub struct Args {
     /// Output format for decrypted data
     #[arg(short = 'f', long)]
     pub output_format: Option<OutputFormat>,
+}
+
+impl From<Args> for CipherContext {
+    fn from(args: Args) -> Self {
+        Self {
+            algorithm: args.algorithm,
+            operation: args.operation,
+            key: args.key,
+            input_text: args.text,
+            output_format: args.output_format.unwrap_or_default(),
+        }
+    }
 }
