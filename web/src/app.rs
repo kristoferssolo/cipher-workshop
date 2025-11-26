@@ -1,7 +1,7 @@
 use crate::pages::{
     aes::AesPage, des::DesPage, footer::Footer, header::Header, home::Home, not_found::NotFound,
 };
-use leptos::{prelude::*, svg::view};
+use leptos::prelude::*;
 use leptos_meta::{MetaTags, Stylesheet, Title, provide_meta_context};
 use leptos_router::{
     StaticSegment,

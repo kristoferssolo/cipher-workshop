@@ -4,24 +4,26 @@ use std::fmt::Display;
 
 #[component]
 pub fn Header() -> impl IntoView {
-    let (theme, set_theme) = signal(Theme::Dark);
+    let initial_theme = {
+        if let Ok(Some(storage)) = window().local_storage()
+            && let Ok(Some(saved)) = storage.get_item("theme")
+        {
+            Theme::from_local_storage(&saved)
+        } else {
+            Theme::Dark
+        }
+    };
+
+    let (theme, set_theme) = signal(initial_theme);
 
     let toggle_theme = move |_| {
         set_theme.update(|t| *t = t.inverse());
 
-        if let Some(body) = document().body() {
-            let class_list = body.class_list();
-            match theme.get() {
-                Theme::Light => {
-                    let _ = class_list.remove_1("dark-theme");
-                    let _ = class_list.add_1("light-theme");
-                }
-                Theme::Dark => {
-                    let _ = class_list.remove_1("light-theme");
-                    let _ = class_list.add_1("dark-theme");
-                }
-            }
+        if let Ok(Some(storage)) = window().local_storage() {
+            let _ = storage.set_item("theme", theme.get().to_local_storage());
         }
+
+        apply_theme(theme.get());
     };
 
     view! {
@@ -57,6 +59,20 @@ impl Theme {
             Self::Dark => Self::Light,
         }
     }
+
+    fn from_local_storage(value: &str) -> Self {
+        match value.trim().to_lowercase().as_str() {
+            "light" => Self::Light,
+            _ => Self::Dark,
+        }
+    }
+
+    const fn to_local_storage(self) -> &'static str {
+        match self {
+            Self::Light => "light",
+            Self::Dark => "dark",
+        }
+    }
 }
 
 impl Display for Theme {
@@ -66,5 +82,21 @@ impl Display for Theme {
             Self::Dark => "🌙 Dark",
         };
         f.write_str(s)
+    }
+}
+
+fn apply_theme(theme: Theme) {
+    if let Some(body) = document().body() {
+        let class_list = body.class_list();
+        match theme {
+            Theme::Light => {
+                let _ = class_list.remove_1("dark-theme");
+                let _ = class_list.add_1("light-theme");
+            }
+            Theme::Dark => {
+                let _ = class_list.remove_1("light-theme");
+                let _ = class_list.add_1("dark-theme");
+            }
+        }
     }
 }
