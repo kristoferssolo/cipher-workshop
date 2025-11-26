@@ -8,34 +8,28 @@ authors = ["Kristofers Solo <dev@kristofers.xyz>"]
 edition = "2024"
 
 [workspace.dependencies]
+aes = { path = "aes" }
+cipher-core = { path = "cipher-core" }
+cipher-factory = { path = "cipher-factory" }
 claims = "0.8"
+clap = { version = "4.5", features = ["derive"] }
 color-eyre = "0.6"
+des = { path = "des" }
 rand = "0.9"
 rstest = "0.26"
 strum = "0.27"
 thiserror = "2"
-
-[workspace.dependencies.aes]
-path = "aes"
-
-[workspace.dependencies.cipher-core]
-path = "cipher-core"
-
-[workspace.dependencies.cipher-factory]
-path = "cipher-factory"
-
-[workspace.dependencies.clap]
-version = "4.5"
-features = ["derive"]
-
-[workspace.dependencies.des]
-path = "des"
-
-[workspace.dependencies.zeroize]
-version = "1.8"
-features = ["derive"]
+zeroize = { version = "1.8", features = ["derive"] }
 
 [workspace.lints.clippy]
 nursery = "warn"
 pedantic = "warn"
 unwarp_used = "warn"
+
+# Defines a size-optimized profile for the WASM bundle in release mode
+[profile.wasm-release]
+inherits = "release"
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = "abort"
