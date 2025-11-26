@@ -27,7 +27,7 @@ $l-hl-low: #f4ede8;
 $l-hl-high: #cecacd;
 
 $control-height: 46px;
-$trans-speed: 0.3s ease;
+$trans-time: 0.3s ease;
 
 :root,
 body.dark-theme {
@@ -76,12 +76,12 @@ body {
 
 body {
   font-family: "Inter", "Segoe UI", sans-serif;
-  background-color: var(--bg-body);
+  background: var(--bg-body);
   color: var(--text-main);
   margin: 0;
   transition:
-    background-color $trans-speed,
-    color $trans-speed;
+    background $trans-time,
+    color $trans-time;
 }
 
 .app-containter {
@@ -93,15 +93,15 @@ body {
 }
 
 .main-nav {
-  background-color: var(--bg-card);
+  background: var(--bg-card);
   padding: 1rem 2rem;
   border-bottom: 2px solid var(--border);
   display: flex;
   justify-content: space-between;
   align-items: center;
   transition:
-    background-color $trans-speed,
-    border-color $trans-speed;
+    background $trans-time,
+    border-color $trans-time;
 
   ul {
     list-style: none;
@@ -151,14 +151,14 @@ main {
   margin-top: auto;
   padding: 2rem 0;
   border-top: 1px solid var(--border);
-  background-color: var(--bg-card);
+  background: var(--bg-card);
   text-align: center;
   font-size: 0.9rem;
   color: var(--text-muted);
   transition:
-    background-color $trans-speed,
-    border-color $trans-speed,
-    color $trans-speed;
+    background $trans-time,
+    border-color $trans-time,
+    color $trans-time;
 }
 
 .footer-content {
@@ -196,9 +196,9 @@ main {
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   transition:
-    background-color $trans-speed,
-    border-color $trans-speed,
-    box-shadow $trans-speed;
+    background $trans-time,
+    border-color $trans-time,
+    box-shadow $trans-time;
 }
 
 .card-header {
@@ -286,7 +286,7 @@ main {
       padding: 0 12px;
       border-radius: 6px;
       border: 1px solid var(--border);
-      background-color: var(--bg-input);
+      background: var(--bg-input);
       color: var(--text-main);
       cursor: pointer;
       font-size: 0.9rem;
@@ -329,7 +329,7 @@ main {
   textarea {
     width: 100%;
     padding: 12px;
-    background-color: var(--bg-input);
+    background: var(--bg-input);
     color: var(--text-main);
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -351,7 +351,7 @@ main {
 }
 
 .btn-primary {
-  background-color: var(--primary);
+  background: var(--primary);
   color: var(--bg-body);
   padding: 12px 24px;
   border: none;
@@ -370,7 +370,7 @@ main {
 .error-box {
   margin-top: 1.5rem;
   padding: 1rem;
-  background-color: rgba($d-love, 0.1);
+  background: rgba($d-love, 0.1);
   color: var(--error);
   border: 1px solid var(--error);
   border-radius: 6px;
@@ -381,7 +381,7 @@ main {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background-color: rgba(0, 0, 0, 0.03);
+  background: rgba(0, 0, 0, 0.03);
   border-bottom: 1px solid var(--border);
 
   strong {
@@ -413,7 +413,7 @@ main {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background-color: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.05);
   border-bottom: 1px solid var(--border);
 
   strong {
@@ -430,9 +430,9 @@ main {
 .result-toolbar,
 .format-controls select {
   transition:
-    background-color $trans-speed,
-    border-color $trans-speed,
-    color $trans-speed;
+    background $trans-time,
+    border-color $trans-time,
+    color $trans-time;
 }
 
 .btn-copy {
@@ -449,6 +449,91 @@ main {
   transition: all 0.2s;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.05);
   }
+}
+
+.home-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.hero-section {
+  text-align: center;
+  margin-bottom: 3rem;
+
+  h1 {
+    font-size: 3rem;
+    color: var(--primary);
+    margin: 0 0 1rem 0;
+    line-height: 1.1;
+  }
+
+  .subtitle {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-bottom: 3rem;
+
+  @media (min-width: 600px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.info-card {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background-color $trans-time,
+    border-color $trans-time;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary);
+  }
+
+  h3 {
+    color: var(--secondary);
+    margin-top: 0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+  }
+
+  p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  strong {
+    color: var(--accent);
+  }
+}
+
+.getting-started {
+  text-align: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+  color: var(--text-main);
+  font-weight: 500;
 }
