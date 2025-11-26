@@ -107,7 +107,7 @@ impl<'a> Iterator for SubkeyChunks<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         self.0
             .next()
-            .map(|chunk| <&[Subkey; 4]>::try_from(chunk).unwrap())
+            .map(|chunk| <&[Subkey; 4]>::try_from(chunk).expect("4 chunk subkeys"))
     }
 }
 
@@ -118,7 +118,7 @@ impl<'a> Iterator for SubkeyChunksRev<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         self.0
             .next()
-            .map(|chunk| <&[Subkey; 4]>::try_from(chunk).unwrap())
+            .map(|chunk| <&[Subkey; 4]>::try_from(chunk).expect("4 chunk subkeys"))
     }
 }
 

@@ -29,6 +29,10 @@ impl CipherContext {
         }
     }
 
+    /// # Errors
+    ///
+    /// Returns `Err` if parsing the input text or creating the cipher fails,
+    /// or if the encryption/decryption process encounters an error.
     pub fn process(&self) -> CipherResult<String> {
         let text_bytes = self.algorithm.parse_text(&self.input_text)?;
         let cipher = self.algorithm.new_cipher(&self.key)?;

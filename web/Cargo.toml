@@ -34,8 +34,9 @@ ssr = [
   "leptos_router/ssr",
 ]
 
-[lints]
-workspace = true
+[lints.clippy]
+nursery = "warn"
+unwrap_used = "warn"
 
 # Defines a size-optimized profile for the WASM bundle in release mode
 [profile.wasm-release]
