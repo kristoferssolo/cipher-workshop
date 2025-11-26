@@ -27,6 +27,7 @@ $l-hl-low: #f4ede8;
 $l-hl-high: #cecacd;
 
 $control-height: 46px;
+$trans-speed: 0.3s ease;
 
 :root,
 body.dark-theme {
@@ -66,20 +67,29 @@ body.light-theme {
   --focus-ring: #{rgba($l-rose, 0.3)};
 }
 
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: "Inter", "Segoe UI", sans-serif;
   background-color: var(--bg-body);
   color: var(--text-main);
   margin: 0;
   transition:
-    background-color 0.3s,
-    color 0.3s;
+    background-color $trans-speed,
+    color $trans-speed;
 }
 
 .app-containter {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   max-width: 800px;
   margin: 0 auto;
-  min-height: 100vh;
 }
 
 .main-nav {
@@ -89,6 +99,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition:
+    background-color $trans-speed,
+    border-color $trans-speed;
 
   ul {
     list-style: none;
@@ -109,6 +122,13 @@ body {
       color: var(--primary);
     }
   }
+}
+
+main {
+  flex: 1;
+  padding: 2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .theme-toggle {
@@ -135,11 +155,13 @@ body {
   text-align: center;
   font-size: 0.9rem;
   color: var(--text-muted);
+  transition:
+    background-color $trans-speed,
+    border-color $trans-speed,
+    color $trans-speed;
 }
 
 .footer-content {
-  max-width: 800px;
-  margin: 0 auto;
   padding: 0 1rem;
 
   p {
@@ -167,16 +189,16 @@ body {
   }
 }
 
-main {
-  padding: 2rem;
-}
-
 .cipher-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition:
+    background-color $trans-speed,
+    border-color $trans-speed,
+    box-shadow $trans-speed;
 }
 
 .card-header {
@@ -398,6 +420,19 @@ main {
     font-size: 0.85rem;
     color: var(--text-muted);
   }
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.format-controls,
+.radio-group,
+.result-box,
+.result-toolbar,
+.format-controls select {
+  transition:
+    background-color $trans-speed,
+    border-color $trans-speed,
+    color $trans-speed;
 }
 
 .btn-copy {
