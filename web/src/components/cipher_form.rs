@@ -1,6 +1,6 @@
 use cipher_factory::prelude::*;
 use leptos::prelude::*;
-use std::str::FromStr;
+use std::{str::FromStr, time::Duration};
 use strum::IntoEnumIterator;
 
 #[component]
@@ -13,12 +13,12 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
 
     let (output, set_output) = signal(String::new());
     let (error_msg, set_error_msg) = signal(String::new());
+
     let (copy_feedback, set_copy_feedback) = signal(false);
 
     let handle_submit = move || {
         set_error_msg(String::new());
         set_output(String::new());
-        set_copy_feedback(false);
 
         let key = key_input.get();
         let text = text_input.get();
@@ -33,6 +33,13 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
             Ok(out) => set_output(out),
             Err(e) => set_error_msg(e.to_string()),
         }
+    };
+
+    let copy_to_clipboard = move |content: String| {
+        let clipboard = window().navigator().clipboard();
+        let _ = clipboard.write_text(&content);
+        set_copy_feedback(true);
+        set_timeout(move || set_copy_feedback(false), Duration::from_secs(2));
     };
 
     view! {
@@ -129,8 +136,16 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
                     <div class="result-box">
                         <div class="result-toolbar">
                             <strong>"Output ("{output_fmt.get().to_string()}")"</strong>
-                            <code>{output.get()}</code>
+                            <button
+                                class="btn-copy"
+                                on:click=move |_| copy_to_clipboard(output.get())
+                            >
+                                {move || {
+                                    if copy_feedback.get() { "✔️ Copied" } else { "📋 Copy" }
+                                }}
+                            </button>
                         </div>
+                        <code>{output.get()}</code>
                     </div>
                 }
                     .into_any()
