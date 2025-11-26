@@ -1,5 +1,4 @@
 use leptos::prelude::*;
-use leptos_router::components::A;
 
 #[component]
 pub fn Footer() -> impl IntoView {
@@ -12,9 +11,9 @@ pub fn Footer() -> impl IntoView {
                     "No data is transmitted to any server. You can verify this by disconnecting your internet connection."
                 </p>
                 <div class="footer-links">
-                    <A href="https://github.com/kristoferssolo/cipher-workshop" target="_blank">
+                    <a href="https://github.com/kristoferssolo/cipher-workshop" target="_blank">
                         "View Source on GitHub"
-                    </A>
+                    </a>
                 </div>
             </div>
         </footer>

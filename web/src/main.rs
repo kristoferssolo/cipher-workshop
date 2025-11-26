@@ -5,9 +5,10 @@ async fn main() {
     use leptos::logging::log;
     use leptos::prelude::*;
     use leptos_axum::{LeptosRoutes, generate_route_list};
+    use tokio::net::TcpListener;
     use web::app::*;
 
-    let conf = get_configuration(None).unwrap();
+    let conf = get_configuration(None).expect("Valid config file");
     let addr = conf.leptos_options.site_addr;
     let leptos_options = conf.leptos_options;
     // Generate the list of routes in your Leptos App
@@ -24,10 +25,11 @@ async fn main() {
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
     log!("listening on http://{}", &addr);
-    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    axum::serve(listener, app.into_make_service())
-        .await
-        .unwrap();
+    if let Ok(listener) = TcpListener::bind(&addr).await {
+        axum::serve(listener, app.into_make_service())
+            .await
+            .expect("valid serving");
+    }
 }
 
 #[cfg(not(feature = "ssr"))]

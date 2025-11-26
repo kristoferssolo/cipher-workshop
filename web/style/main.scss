@@ -150,7 +150,7 @@ main {
 .app-footer {
   margin-top: auto;
   padding: 2rem 0;
-  border-top: 1px solid var(--border);
+  border-top: 2px solid var(--border);
   background: var(--bg-card);
   text-align: center;
   font-size: 0.9rem;
@@ -536,4 +536,51 @@ main {
   border: 1px dashed var(--border);
   color: var(--text-main);
   font-weight: 500;
+}
+
+.not-found-container {
+  text-align: center;
+  padding: 4rem 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-out;
+
+  .error-code {
+    font-size: 6rem;
+    font-weight: 800;
+    color: var(--error);
+    font-family: "Consolar", "Monaco", monospace;
+    opacity: 0.8;
+    line-height: 1;
+    margin-bottom: 1rem;
+    text-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  .binary-decoration {
+    font-family: "Consolas", "Monaco", monospace;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    opacity: 0.5;
+    margin-bottom: 2.5rem;
+    word-break: break-all;
+  }
+}
+
+.btn-link {
+  text-decoration: none;
+  display: inline-block;
+  width: auto;
+  text-align: center;
 }

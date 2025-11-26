@@ -1,5 +1,7 @@
-use crate::pages::{aes::AesPage, des::DesPage, footer::Footer, header::Header, home::Home};
-use leptos::prelude::*;
+use crate::pages::{
+    aes::AesPage, des::DesPage, footer::Footer, header::Header, home::Home, not_found::NotFound,
+};
+use leptos::{prelude::*, svg::view};
 use leptos_meta::{MetaTags, Stylesheet, Title, provide_meta_context};
 use leptos_router::{
     StaticSegment,
@@ -43,7 +45,7 @@ pub fn App() -> impl IntoView {
             <div class="app-containter">
                 <Header />
                 <main>
-                    <Routes fallback=|| "Page not found.".into_view()>
+                    <Routes fallback=|| view! { <NotFound /> }>
                         <Route path=StaticSegment("/") view=Home />
                         <Route path=StaticSegment("/des") view=DesPage />
                         <Route path=StaticSegment("/aes") view=AesPage />
