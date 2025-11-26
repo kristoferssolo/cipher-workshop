@@ -1,62 +1,93 @@
+use cipher_factory::prelude::*;
 use leptos::prelude::*;
-type LogicFn = Box<dyn Fn(bool, String, String) -> (String, String)>;
+use std::str::FromStr;
+use strum::IntoEnumIterator;
 
 #[component]
-pub fn CipherForm(title: &'static str, logic: LogicFn) -> impl IntoView {
-    let (mode, set_mode) = signal("Encrypt".to_string());
+pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
+    let (mode, set_mode) = signal(OperationMode::Encrypt);
+    let (output_fmt, set_output_fmt) = signal(OutputFormat::Hex);
+
     let (key_input, set_key_input) = signal(String::new());
     let (text_input, set_text_input) = signal(String::new());
+
     let (output, set_output) = signal(String::new());
     let (error_msg, set_error_msg) = signal(String::new());
+    let (copy_feedback, set_copy_feedback) = signal(false);
 
-    let handle_submit = move |_| {
+    let handle_submit = move || {
         set_error_msg(String::new());
         set_output(String::new());
+        set_copy_feedback(false);
 
-        let is_encrypt = mode.get() == "Encrypt";
         let key = key_input.get();
         let text = text_input.get();
 
         if key.is_empty() || text.is_empty() {
-            set_error_msg("Please enter both key and text/hex.".to_string());
+            set_error_msg("Please enter both key and input text.".to_string());
             return;
         }
 
-        let (res_out, res_err) = logic(is_encrypt, key, text);
-
-        if !res_err.is_empty() {
-            set_error_msg(res_err);
-            return;
+        let context = CipherContext::new(algorithm, mode.get(), key, text, output_fmt.get());
+        match context.process() {
+            Ok(out) => set_output(out),
+            Err(e) => set_error_msg(e.to_string()),
         }
-        set_output(res_out);
     };
 
     view! {
         <div class="cipher-card">
-            <h2>{title} " Encryption"</h2>
+            <div class="card-header">
+                <h2>{algorithm.to_string()}</h2>
+            </div>
+
             <div class="form-group">
-                <label>"Operation Mdoe"</label>
-                <div class="radio-group">
-                    <label>
-                        <input
-                            type="radio"
-                            name="mode"
-                            value="Encrypt"
-                            checked=move || mode.get() == "Encrypt"
-                            on:change=move |ev| set_mode(event_target_value(&ev))
+                <label>"Configuration"</label>
+                <div class="controls-row">
+                    <div class="radio-group">
+                        <RadioButton
+                            value=OperationMode::Encrypt
+                            current=mode
+                            set_current=set_mode
                         />
-                        "Encrypt"
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            name="mode"
-                            value="Decrypt"
-                            checked=move || mode.get() == "Decrypt"
-                            on:change=move |ev| set_mode(event_target_value(&ev))
+                        <RadioButton
+                            value=OperationMode::Decrypt
+                            current=mode
+                            set_current=set_mode
                         />
-                        "Decrypt"
-                    </label>
+                    </div>
+                    {move || {
+                        if mode.get() != OperationMode::Decrypt {
+                            return view! { <span></span> }.into_any();
+                        }
+                        view! {
+                            <div class="format-controls-box">
+                                <div class="format-controls">
+                                    <label>"Output format:"</label>
+                                    <select
+                                        on:change=move |ev| {
+                                            let val = event_target_value(&ev);
+                                            let fmt = OutputFormat::from_str(&val).unwrap_or_default();
+                                            set_output_fmt(fmt);
+                                            if !output.get().is_empty() {
+                                                handle_submit();
+                                            }
+                                        }
+                                        prop:value=move || output_fmt.get().to_string()
+                                    >
+                                        {OutputFormat::iter()
+                                            .map(|fmt| {
+                                                view! {
+                                                    <option value=fmt.to_string()>{fmt.to_string()}</option>
+                                                }
+                                            })
+                                            .collect_view()}
+                                    </select>
+                                </div>
+                            </div>
+                        }
+                            .into_any()
+                    }}
                 </div>
             </div>
             <div class="form-group">
@@ -71,10 +102,9 @@ pub fn CipherForm(title: &'static str, logic: LogicFn) -> impl IntoView {
             <div class="form-group">
                 <label>
                     {move || {
-                        if mode.get() == "Encrypt" {
-                            "Plaintext Input"
-                        } else {
-                            "Ciphertext (Hex) Input"
+                        match mode.get() {
+                            OperationMode::Encrypt => "Plaintext Input",
+                            OperationMode::Decrypt => "Ciphertext (Hex) Input",
                         }
                     }}
                 </label>
@@ -86,31 +116,55 @@ pub fn CipherForm(title: &'static str, logic: LogicFn) -> impl IntoView {
                 />
             </div>
 
-            <button class="btn-primary" on:click=handle_submit>
-                {move || format!("Run {title} {}", mode.get())}
+            <button class="btn-primary" on:click=move |_| handle_submit()>
+                {move || format!("{} using {algorithm}", mode.get())}
             </button>
 
-            {move || {
-                if error_msg.get().is_empty() {
-                    view! { <span></span> }.into_any()
-                } else {
-                    view! { <div class="error-box">{error_msg.get()}</div> }.into_any()
-                }
-            }}
-
+            // Output Section
             {move || {
                 if output.get().is_empty() {
-                    view! { <span></span> }.into_any()
-                } else {
-                    view! {
-                        <div class="result-box">
-                            <strong>"Output:"</strong>
+                    return view! { <span></span> }.into_any();
+                }
+                view! {
+                    <div class="result-box">
+                        <div class="result-toolbar">
+                            <strong>"Output ("{output_fmt.get().to_string()}")"</strong>
                             <code>{output.get()}</code>
                         </div>
-                    }
-                        .into_any()
+                    </div>
                 }
+                    .into_any()
             }}
+
+            // Error Section
+            {move || {
+                if error_msg.get().is_empty() {
+                    return view! { <span></span> }.into_any();
+                }
+                view! { <div class="error-box">{error_msg.get()}</div> }.into_any()
+            }}
+        </div>
+    }
+}
+
+#[component]
+fn RadioButton(
+    value: OperationMode,
+    current: ReadSignal<OperationMode>,
+    set_current: WriteSignal<OperationMode>,
+) -> impl IntoView {
+    view! {
+        <div class="radio-button">
+            <label>
+                <input
+                    type="radio"
+                    name="crypto-mode"
+                    value=value.to_string()
+                    prop:checked=move || current.get() == value
+                    on:change=move |_| set_current.set(value)
+                />
+                {value.to_string()}
+            </label>
         </div>
     }
 }

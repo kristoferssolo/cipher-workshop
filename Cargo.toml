@@ -12,6 +12,7 @@ claims = "0.8"
 color-eyre = "0.6"
 rand = "0.9"
 rstest = "0.26"
+strum = "0.27"
 thiserror = "2"
 
 [workspace.dependencies.aes]

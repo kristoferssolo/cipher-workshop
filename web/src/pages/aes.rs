@@ -3,6 +3,6 @@ use cipher_factory::Algorithm;
 use leptos::prelude::*;
 
 #[component]
-pub fn DesPage() -> impl IntoView {
-    view! { <CipherForm algorithm=Algorithm::Des /> }
+pub fn AesPage() -> impl IntoView {
+    view! { <CipherForm algorithm=Algorithm::Aes /> }
 }

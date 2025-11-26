@@ -9,6 +9,7 @@ aes.workspace = true
 cipher-core.workspace = true
 clap = { workspace = true, optional = true }
 des.workspace = true
+strum = { workspace = true, features = ["derive"] }
 
 [features]
 default = []

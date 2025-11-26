@@ -7,3 +7,7 @@ pub use {
     traits::{BlockCipher, BlockParser, InputBlock},
     types::{CipherAction, Output},
 };
+
+pub mod prelude {
+    pub use super::{CipherAction, CipherResult, InputBlock, Output};
+}

@@ -74,8 +74,8 @@ impl Algorithm {
 impl Display for Algorithm {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let s = match self {
-            Self::Des => "Des",
-            Self::Aes => "Aes",
+            Self::Des => "DES",
+            Self::Aes => "AES",
         };
         f.write_str(s)
     }

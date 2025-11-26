@@ -1,15 +1,34 @@
-use crate::{Algorithm, OperationChoice, OutputFormat};
+use crate::{Algorithm, OperationMode, OutputFormat};
 use cipher_core::{BlockCipher, CipherResult};
 
+#[derive(Clone)]
 pub struct CipherContext {
     pub algorithm: Algorithm,
-    pub operation: OperationChoice,
+    pub operation: OperationMode,
     pub key: String,
     pub input_text: String,
     pub output_format: OutputFormat,
 }
 
 impl CipherContext {
+    #[inline]
+    #[must_use]
+    pub const fn new(
+        algorithm: Algorithm,
+        operation: OperationMode,
+        key: String,
+        input_text: String,
+        output_format: OutputFormat,
+    ) -> Self {
+        Self {
+            algorithm,
+            operation,
+            key,
+            input_text,
+            output_format,
+        }
+    }
+
     pub fn process(&self) -> CipherResult<String> {
         let text_bytes = self.algorithm.parse_text(&self.input_text)?;
         let cipher = self.algorithm.new_cipher(&self.key)?;
@@ -18,13 +37,13 @@ impl CipherContext {
 
     fn execute(&self, cipher: &dyn BlockCipher, text_bytes: &[u8]) -> CipherResult<String> {
         match self.operation {
-            OperationChoice::Encrypt => {
+            OperationMode::Encrypt => {
                 let ciphertext = cipher.encrypt(text_bytes)?;
                 Ok(format!("{ciphertext:X}"))
             }
-            OperationChoice::Decrypt => {
+            OperationMode::Decrypt => {
                 let plaintext = cipher.decrypt(text_bytes)?;
-                let output = self.output_format.to_string(&plaintext);
+                let output = self.output_format.format(&plaintext);
                 Ok(output)
             }
         }

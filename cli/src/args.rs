@@ -1,4 +1,4 @@
-use cipher_factory::{Algorithm, CipherContext, OperationChoice, OutputFormat};
+use cipher_factory::{Algorithm, CipherContext, OperationMode, OutputFormat};
 use clap::Parser;
 
 #[derive(Debug, Clone, Parser)]
@@ -6,7 +6,7 @@ use clap::Parser;
 pub struct Args {
     /// Operation to perform
     #[arg(value_name = "OPERATION")]
-    pub operation: OperationChoice,
+    pub operation: OperationMode,
 
     /// Encryption algorithm
     #[arg(short, long)]

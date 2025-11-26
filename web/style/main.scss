@@ -26,6 +26,8 @@ $l-iris: #907aa9;
 $l-hl-low: #f4ede8;
 $l-hl-high: #cecacd;
 
+$control-height: 46px;
+
 :root,
 body.dark-theme {
   // Default to Dark Mode
@@ -135,13 +137,116 @@ main {
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
 
   h2 {
-    margin-top: 0;
+    margin: 0;
+    border: none;
+    padding: none;
     color: var(--secondary);
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 15px;
-    margin-bottom: 25px;
+    font-size: 1.5rem;
+  }
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: $control-height;
+}
+
+.radio-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  background: var(--bg-input);
+  border-radius: 8px;
+  width: fit-content;
+
+  height: $control-height;
+  padding: 0 16px;
+  box-sizing: border-box;
+
+  .radio-button {
+    label {
+      margin: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+      text-transform: none;
+      height: 100%;
+    }
+
+    input[type="radio"] {
+      accent-color: var(--primary);
+      margin: 0;
+    }
+  }
+}
+
+.format-controls-box {
+  display: flex;
+  font-size: 0.9rem;
+  background: var(--bg-input);
+  border-radius: 8px;
+
+  height: $control-height;
+  padding: 0 12px;
+  box-sizing: border-box;
+
+  animation: fadeIn 0.2s ease-in-out;
+
+  .format-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    label {
+      margin: 0;
+      color: var(--text-muted);
+      font-weight: normal;
+      white-space: nowrap;
+    }
+
+    select {
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background-color: var(--bg-input);
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -183,29 +288,6 @@ main {
   }
 }
 
-.radio-group {
-  display: flex;
-  gap: 20px;
-  background: var(--bg-input);
-  padding: 10px;
-  border-radius: 8px;
-  width: fit-content;
-
-  label {
-    margin: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-main);
-    text-transform: none;
-  }
-
-  input[type="radio"] {
-    accent-color: var(--primary);
-  }
-}
-
 .btn-primary {
   background-color: var(--primary);
   color: var(--bg-body);
@@ -232,19 +314,27 @@ main {
   border-radius: 6px;
 }
 
+.error-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid var(--border);
+
+  strong {
+    background: transparent;
+    padding: 0;
+    color: var(--text-muted);
+  }
+}
+
 .result-box {
   margin-top: 1.5rem;
   background: var(--bg-highlight);
   border-radius: 8px;
+  border: 1px solid var(--border);
   overflow: hidden;
-
-  strong {
-    display: block;
-    padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.1);
-    color: var(--text-muted);
-    font-size: 0.85rem;
-  }
 
   code {
     display: block;
@@ -252,5 +342,38 @@ main {
     word-break: break-all;
     font-family: "Consolas", "Monaco", monospace;
     color: var(--accent);
+    background: transparent;
+  }
+}
+
+.result-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border);
+
+  strong {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+}
+
+.btn-copy {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
   }
 }
