@@ -50,6 +50,65 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
         }
     };
 
+    view! {
+        <div class="cipher-card">
+            <div class="card-header">
+                <h2>{algorithm.to_string()}</h2>
+            </div>
+            <ConfigurationSection
+                mode=mode
+                set_mode=set_mode
+                output_fmt=output_fmt
+                update_output=update_output
+            />
+            <KeyInput set_key_input=set_key_input />
+            <TextInput mode=mode set_text_input=set_text_input />
+
+            <button class="btn-primary" on:click=move |_| handle_submit()>
+                {move || format!("{} using {algorithm}", mode.get())}
+            </button>
+
+            <OutputBox
+                output=output
+                output_fmt=output_fmt
+                copy_to_clipboard=copy_to_clipboard
+                copy_feedback=copy_feedback
+            />
+            <ErrorBox error_msg=error_msg />
+
+        </div>
+    }
+}
+
+#[component]
+fn RadioButton(
+    value: OperationMode,
+    current: ReadSignal<OperationMode>,
+    set_current: WriteSignal<OperationMode>,
+) -> impl IntoView {
+    view! {
+        <div class="radio-button">
+            <label>
+                <input
+                    type="radio"
+                    name="crypto-mode"
+                    value=value.to_string()
+                    prop:checked=move || current.get() == value
+                    on:change=move |_| set_current.set(value)
+                />
+                {value.to_string()}
+            </label>
+        </div>
+    }
+}
+
+#[component]
+fn ConfigurationSection(
+    mode: ReadSignal<OperationMode>,
+    set_mode: WriteSignal<OperationMode>,
+    output_fmt: ReadSignal<OutputFormat>,
+    update_output: impl Fn(OutputFormat) + Copy + Send + 'static,
+) -> impl IntoView {
     let handle_format_change = move |ev| {
         let val = event_target_value(&ev);
         let fmt = OutputFormat::from_str(&val).unwrap_or_default();
@@ -76,137 +135,122 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
     };
 
     view! {
-        <div class="cipher-card">
-            <div class="card-header">
-                <h2>{algorithm.to_string()}</h2>
-            </div>
-
-            <div class="form-group">
-                <label>"Configuration"</label>
-                <div class="controls-row">
-                    <div class="radio-group">
-                        <RadioButton
-                            value=OperationMode::Encrypt
-                            current=mode
-                            set_current=set_mode
-                        />
-                        <RadioButton
-                            value=OperationMode::Decrypt
-                            current=mode
-                            set_current=set_mode
-                        />
-                    </div>
-                    {move || {
-                        if mode.get() != OperationMode::Decrypt {
-                            return view! { <span></span> }.into_any();
-                        }
-                        view! {
-                            <div class="format-controls-box">
-                                <div class="format-controls">
-                                    <label>"Output format:"</label>
-                                    <select
-                                        on:wheel=handle_format_wheel
-                                        on:change=handle_format_change
-                                        prop:value=move || output_fmt.get().to_string()
-                                    >
-                                        {OutputFormat::iter()
-                                            .map(|fmt| {
-                                                view! {
-                                                    <option value=fmt.to_string()>{fmt.to_string()}</option>
-                                                }
-                                            })
-                                            .collect_view()}
-                                    </select>
-                                </div>
-                            </div>
-                        }
-                            .into_any()
-                    }}
+        <div class="form-group">
+            <label>"Configuration"</label>
+            <div class="controls-row">
+                <div class="radio-group">
+                    <RadioButton value=OperationMode::Encrypt current=mode set_current=set_mode />
+                    <RadioButton value=OperationMode::Decrypt current=mode set_current=set_mode />
                 </div>
-            </div>
-            <div class="form-group">
-                <label>"Secret Key"</label>
-                <input
-                    type="text"
-                    prop:key_input
-                    placeholder="Enter key..."
-                    on:input=move |ev| set_key_input(event_target_value(&ev))
-                />
-            </div>
-            <div class="form-group">
-                <label>
-                    {move || {
-                        match mode.get() {
-                            OperationMode::Encrypt => "Plaintext Input",
-                            OperationMode::Decrypt => "Ciphertext (Hex) Input",
-                        }
-                    }}
-                </label>
-                <input
-                    type="text"
-                    prop:text_input
-                    placeholder="Enter text..."
-                    on:input=move |ev| set_text_input(event_target_value(&ev))
-                />
-            </div>
-
-            <button class="btn-primary" on:click=move |_| handle_submit()>
-                {move || format!("{} using {algorithm}", mode.get())}
-            </button>
-
-            // Output Section
-            {move || {
-                if output.get().is_empty() {
-                    return view! { <span></span> }.into_any();
-                }
-                view! {
-                    <div class="result-box">
-                        <div class="result-toolbar">
-                            <strong>"Output ("{output_fmt.get().to_string()}")"</strong>
-                            <button
-                                class="btn-copy"
-                                on:click=move |_| copy_to_clipboard(output.get())
-                            >
-                                {move || {
-                                    if copy_feedback.get() { "✔️ Copied" } else { "📋 Copy" }
-                                }}
-                            </button>
+                {move || {
+                    if mode.get() != OperationMode::Decrypt {
+                        return view! { <span></span> }.into_any();
+                    }
+                    view! {
+                        <div class="format-controls-box">
+                            <div class="format-controls">
+                                <label>"Output format:"</label>
+                                <select
+                                    on:wheel=handle_format_wheel
+                                    on:change=handle_format_change
+                                    prop:value=move || output_fmt.get().to_string()
+                                >
+                                    {OutputFormat::iter()
+                                        .map(|fmt| {
+                                            view! {
+                                                <option value=fmt.to_string()>{fmt.to_string()}</option>
+                                            }
+                                        })
+                                        .collect_view()}
+                                </select>
+                            </div>
                         </div>
-                        <code>{output.get()}</code>
-                    </div>
-                }
-                    .into_any()
-            }}
-
-            // Error Section
-            {move || {
-                if error_msg.get().is_empty() {
-                    return view! { <span></span> }.into_any();
-                }
-                view! { <div class="error-box">{error_msg.get()}</div> }.into_any()
-            }}
+                    }
+                        .into_any()
+                }}
+            </div>
         </div>
     }
 }
 
 #[component]
-fn RadioButton(
-    value: OperationMode,
-    current: ReadSignal<OperationMode>,
-    set_current: WriteSignal<OperationMode>,
+fn KeyInput(set_key_input: WriteSignal<String>) -> impl IntoView {
+    view! {
+        <div class="form-group">
+            <label>"Secret Key"</label>
+            <input
+                type="text"
+                prop:key_input
+                placeholder="Enter key..."
+                on:input=move |ev| set_key_input(event_target_value(&ev))
+            />
+        </div>
+    }
+}
+
+#[component]
+fn TextInput(
+    mode: ReadSignal<OperationMode>,
+    set_text_input: WriteSignal<String>,
 ) -> impl IntoView {
     view! {
-        <div class="radio-button">
+        <div class="form-group">
             <label>
-                <input
-                    type="radio"
-                    name="crypto-mode"
-                    value=value.to_string()
-                    prop:checked=move || current.get() == value
-                    on:change=move |_| set_current.set(value)
-                />
-                {value.to_string()}
+                {move || {
+                    match mode.get() {
+                        OperationMode::Encrypt => "Plaintext Input",
+                        OperationMode::Decrypt => "Ciphertext (Hex) Input",
+                    }
+                }}
             </label>
+            <input
+                type="text"
+                prop:text_input
+                placeholder="Enter text..."
+                on:input=move |ev| set_text_input(event_target_value(&ev))
+            />
         </div>
+    }
+}
+
+#[component]
+fn OutputBox(
+    output: ReadSignal<String>,
+    output_fmt: ReadSignal<OutputFormat>,
+    copy_to_clipboard: impl Fn(String) + Copy + Send + 'static,
+    copy_feedback: ReadSignal<bool>,
+) -> impl IntoView {
+    view! {
+        {move || {
+            if output.get().is_empty() {
+                return view! { <span></span> }.into_any();
+            }
+            view! {
+                <div class="result-box">
+                    <div class="result-toolbar">
+                        <strong>"Output ("{output_fmt.get().to_string()}")"</strong>
+                        <button class="btn-copy" on:click=move |_| copy_to_clipboard(output.get())>
+                            {move || {
+                                if copy_feedback.get() { "✔️ Copied" } else { "📋 Copy" }
+                            }}
+                        </button>
+                    </div>
+                    <code>{output.get()}</code>
+                </div>
+            }
+                .into_any()
+        }}
+    }
+}
+
+#[component]
+fn ErrorBox(error_msg: ReadSignal<String>) -> impl IntoView {
+    view! {
+        {move || {
+            if error_msg.get().is_empty() {
+                return view! { <span></span> }.into_any();
+            }
+            view! { <div class="error-box">{error_msg.get()}</div> }.into_any()
+        }}
     }
 }

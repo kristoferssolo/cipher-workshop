@@ -4,15 +4,15 @@ use thiserror::Error;
 #[derive(Debug, Error, Clone, PartialEq, Eq)]
 pub enum CipherError {
     /// Invalid key size for the cipher
-    #[error("Invalid key size: expected {expected} bytes, got {actual}")]
+    #[error("Invalid key size: expected {expected} bytes, got {actual}.")]
     InvalidKeySize { expected: usize, actual: usize },
 
     /// Input data doesn't match the cipher's block size
-    #[error("Invalid block size: expected {expected} bytes, got {actual}")]
+    #[error("Invalid block size: expected {expected} bytes, got {actual}.")]
     InvalidBlockSize { expected: usize, actual: usize },
 
     /// Error parsing block from string
-    #[error("Error parsing block from string: {0}")]
+    #[error("{0}")]
     BlockParseError(#[from] BlockError),
 }
 
