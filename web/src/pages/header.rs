@@ -4,17 +4,17 @@ use std::fmt::Display;
 
 #[component]
 pub fn Header() -> impl IntoView {
-    let initial_theme = {
+    let (theme, set_theme) = signal(Theme::Dark);
+
+    Effect::new(move |_| {
         if let Ok(Some(storage)) = window().local_storage()
             && let Ok(Some(saved)) = storage.get_item("theme")
         {
-            Theme::from_local_storage(&saved)
-        } else {
-            Theme::Dark
+            let theme = Theme::from_local_storage(&saved);
+            set_theme(theme);
+            apply_theme(theme);
         }
-    };
-
-    let (theme, set_theme) = signal(initial_theme);
+    });
 
     let toggle_theme = move |_| {
         set_theme.update(|t| *t = t.inverse());
@@ -22,7 +22,6 @@ pub fn Header() -> impl IntoView {
         if let Ok(Some(storage)) = window().local_storage() {
             let _ = storage.set_item("theme", theme.get().to_local_storage());
         }
-
         apply_theme(theme.get());
     };
 
