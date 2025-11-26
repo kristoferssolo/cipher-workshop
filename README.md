@@ -62,13 +62,13 @@ cargo run --bin cli -- decrypt -a aes -k <KEY> <MESSAGE>
 To encrypt a message with DES:
 
 ```bash
-cargo run --bin cli -- encrypt des -k <KEY> <MESSAGE>
+cargo run --bin cli -- encrypt -a des -k <KEY> <MESSAGE>
 ```
 
 To decrypt a message with DES:
 
 ```bash
-cargo run --bin cli -- decrypt des -k <KEY> <MESSAGE>
+cargo run --bin cli -- decrypt -a des -k <KEY> <MESSAGE>
 ```
 
 ### Web Interface
