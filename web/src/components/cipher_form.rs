@@ -2,6 +2,7 @@ use cipher_factory::prelude::*;
 use leptos::prelude::*;
 use std::{str::FromStr, time::Duration};
 use strum::IntoEnumIterator;
+use web_sys::WheelEvent;
 
 #[component]
 pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
@@ -42,6 +43,38 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
         set_timeout(move || set_copy_feedback(false), Duration::from_secs(2));
     };
 
+    let update_output = move |fmt| {
+        set_output_fmt(fmt);
+        if !output.get().is_empty() {
+            handle_submit();
+        }
+    };
+
+    let handle_format_change = move |ev| {
+        let val = event_target_value(&ev);
+        let fmt = OutputFormat::from_str(&val).unwrap_or_default();
+        update_output(fmt);
+    };
+
+    let handle_format_wheel = move |ev: WheelEvent| {
+        ev.prevent_default();
+
+        let formats = OutputFormat::iter().collect::<Vec<_>>();
+        let current_idx = formats
+            .iter()
+            .position(|f| *f == output_fmt.get())
+            .unwrap_or(2);
+
+        let next_idx = if ev.delta_y() > 0.0 {
+            (current_idx + 1) % formats.len()
+        } else if current_idx == 0 {
+            formats.len() - 1
+        } else {
+            current_idx - 1
+        };
+        update_output(formats[next_idx]);
+    };
+
     view! {
         <div class="cipher-card">
             <div class="card-header">
@@ -72,14 +105,8 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
                                 <div class="format-controls">
                                     <label>"Output format:"</label>
                                     <select
-                                        on:change=move |ev| {
-                                            let val = event_target_value(&ev);
-                                            let fmt = OutputFormat::from_str(&val).unwrap_or_default();
-                                            set_output_fmt(fmt);
-                                            if !output.get().is_empty() {
-                                                handle_submit();
-                                            }
-                                        }
+                                        on:wheel=handle_format_wheel
+                                        on:change=handle_format_change
                                         prop:value=move || output_fmt.get().to_string()
                                     >
                                         {OutputFormat::iter()
