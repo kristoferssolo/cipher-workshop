@@ -120,9 +120,9 @@ fn encrypt_decrypt_roundtrip(
     let dectrypted = assert_ok!(des.decrypt(&ciphertext));
     let re_ciphertext = assert_ok!(des.encrypt(&dectrypted));
 
-    let ciphertext_u64 = cipher_block_to_u64(ciphertext);
-    let decrypted_u64 = cipher_block_to_u64(dectrypted);
-    let re_ciphertext_u64 = cipher_block_to_u64(re_ciphertext);
+    let ciphertext_u64 = cipher_block_to_u64(&ciphertext);
+    let decrypted_u64 = cipher_block_to_u64(&dectrypted);
+    let re_ciphertext_u64 = cipher_block_to_u64(&re_ciphertext);
 
     assert_eq!(
         ciphertext_u64, expected_ciphertext,
@@ -139,16 +139,16 @@ fn encrypt_decrypt_roundtrip(
 }
 
 #[rstest]
-#[case(0x0101010101010101)]
-#[case(0xFEFEFEFEFEFEFEFE)]
-#[case(0xE001E001E001E001)]
+#[case(0x0101_0101_0101_0101)]
+#[case(0xFEFE_FEFE_FEFE_FEFE)]
+#[case(0xE001_E001_E001_E001)]
 fn weak_keys(#[case] key: u64) {
     let des = Des::new(key);
     let plaintext = TEST_PLAINTEXT;
     let ciphertext = assert_ok!(des.encrypt(&plaintext.to_be_bytes()));
     let decrypted = assert_ok!(des.decrypt(&ciphertext));
 
-    let decrypted_u64 = cipher_block_to_u64(decrypted);
+    let decrypted_u64 = cipher_block_to_u64(&decrypted);
 
     assert_eq!(
         decrypted_u64, plaintext,
@@ -163,7 +163,7 @@ fn all_zero_paintext() {
     let plain = 0u64;
     let encrypted = assert_ok!(des.encrypt(&plain.to_be_bytes()));
     let decrypted = assert_ok!(des.decrypt(&encrypted));
-    let decrypted_u64 = cipher_block_to_u64(decrypted);
+    let decrypted_u64 = cipher_block_to_u64(&decrypted);
     assert_eq!(decrypted_u64, plain, "All-zero plaintext failed");
 }
 
@@ -174,7 +174,7 @@ fn all_one_paintext() {
     let plain = u64::MAX;
     let encrypted = assert_ok!(des.encrypt(&plain.to_be_bytes()));
     let decrypted = assert_ok!(des.decrypt(&encrypted));
-    let decrypted_u64 = cipher_block_to_u64(decrypted);
+    let decrypted_u64 = cipher_block_to_u64(&decrypted);
     assert_eq!(decrypted_u64, plain, "All-one plaintext failed");
 }
 
@@ -192,7 +192,7 @@ fn different_inputs() {
     );
 }
 
-fn cipher_block_to_u64(block: Output) -> u64 {
+fn cipher_block_to_u64(block: &Output) -> u64 {
     let bytes = block.as_slice().try_into().expect("8 bytes");
     u64::from_be_bytes(bytes)
 }

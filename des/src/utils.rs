@@ -23,7 +23,7 @@ pub fn permutate(
         .fold(0, |acc, (idx, &input_pos_1based)| {
             let input_bit_pos = input_bit_amount - u64::from(input_pos_1based);
             let bit_value = (input >> input_bit_pos) & 1;
-            let output_bit_pos = output_bit_amount - 1 - (idx as u64);
+            let output_bit_pos = (output_bit_amount - 1) - (idx as u64);
             acc | (bit_value << output_bit_pos)
         })
 }

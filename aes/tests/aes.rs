@@ -519,7 +519,8 @@ fn encrypt_decrypt_roundtrip(
     let ciphertext = aes
         .encrypt(&plaintext.to_be_bytes())
         .expect("Encryption failed");
-    let ciphertext_u128 = u128::from_be_bytes(ciphertext.as_slice().try_into().unwrap());
+    let ciphertext_u128 =
+        u128::from_be_bytes(ciphertext.as_slice().try_into().expect("ciphertext"));
 
     assert_eq!(
         ciphertext_u128, expected_ciphertext,
@@ -528,7 +529,12 @@ fn encrypt_decrypt_roundtrip(
 
     // Decrypt
     let decrypted = aes.decrypt(&ciphertext).expect("Decryption failed");
-    let decrypted_u128 = u128::from_be_bytes(decrypted.as_slice().try_into().unwrap());
+    let decrypted_u128 = u128::from_be_bytes(
+        decrypted
+            .as_slice()
+            .try_into()
+            .expect("decrypted plaintext"),
+    );
 
     assert_eq!(
         decrypted_u128, plaintext,

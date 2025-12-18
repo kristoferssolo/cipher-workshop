@@ -15,7 +15,7 @@ macro_rules! secret_block {
     $vis:vis struct $name:ident ( $int:tt, $bits:expr, $mask:expr );
 ) => {
         $(#[$meta])*
-        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, ::zeroize::Zeroize)]
         $vis struct $name($int);
 
         impl $name {
