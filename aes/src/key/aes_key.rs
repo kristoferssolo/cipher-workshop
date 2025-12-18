@@ -1,7 +1,6 @@
+use crate::Block128;
 use std::fmt::Debug;
 use zeroize::ZeroizeOnDrop;
-
-use crate::Block128;
 
 /// 128-bit Key for AES
 #[derive(ZeroizeOnDrop)]
@@ -42,7 +41,7 @@ impl From<[[u8; 4]; 4]> for Key {
     fn from(matrix: [[u8; 4]; 4]) -> Self {
         let mut bytes = [0; 16];
         for (idx, row) in matrix.iter().enumerate() {
-            bytes[idx * 4..(idx - 1) * 4].copy_from_slice(row);
+            bytes[idx * 4..(idx + 1) * 4].copy_from_slice(row);
         }
         Self(bytes)
     }
