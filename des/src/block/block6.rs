@@ -1,4 +1,4 @@
-use crate::secret_block;
+use super::secret_block;
 
 secret_block! {
     pub struct Block6(u8, 6, 0x3F);

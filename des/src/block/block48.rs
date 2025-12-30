@@ -1,4 +1,5 @@
-use crate::{block::Block6, key::Subkey, secret_block};
+use super::{Block6, secret_block};
+use crate::key::Subkey;
 use std::{array, ops::BitXor};
 
 secret_block! {

@@ -1,5 +1,5 @@
 use crate::block::{lr::LR, secret_block};
-use cipher_core::{parse_block_int, BlockError, InputBlock};
+use cipher_core::{BlockError, InputBlock, parse_block_int};
 use std::{
     slice::{from_raw_parts, from_raw_parts_mut},
     str::FromStr,

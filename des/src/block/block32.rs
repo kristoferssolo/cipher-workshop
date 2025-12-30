@@ -1,6 +1,6 @@
 use std::ops::BitXor;
 
-use crate::secret_block;
+use super::secret_block;
 
 secret_block! {
     pub struct Block32(u32, 32, 0xFFFF_FFFF);

@@ -7,7 +7,7 @@ secret_key! {
 
 impl Half28 {
     #[must_use]
-    pub const fn rotate_left(&self, amount: u8) -> Self {
+    pub const fn rotate_left(self, amount: u8) -> Self {
         let value = self.0;
         let main_shifted = (value << amount) & Self::MASK;
         let wrapped_bits = (value >> (28 - amount)) & ((1 << amount) - 1);

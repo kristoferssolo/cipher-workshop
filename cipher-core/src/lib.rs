@@ -1,11 +1,12 @@
 mod error;
+mod macros;
 mod parsing;
 mod traits;
 mod types;
 
 pub use {
     error::{BlockError, CipherError, CipherResult},
-    parsing::{parse_block_int, BlockInt},
+    parsing::{BlockInt, parse_block_int},
     traits::{BlockCipher, BlockParser, InputBlock},
     types::{CipherAction, Output},
 };

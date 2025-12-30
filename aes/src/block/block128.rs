@@ -2,7 +2,7 @@ use crate::{
     block::{Block32, secret_block},
     sbox::SboxLookup,
 };
-use cipher_core::{parse_block_int, BlockError, InputBlock};
+use cipher_core::{BlockError, InputBlock, parse_block_int};
 use std::{
     ops::BitXor,
     slice::{from_raw_parts, from_raw_parts_mut},

@@ -81,21 +81,21 @@ where
 {
     let mut lr = LR::from(block);
 
-    for subkey in subkeys {
+    for &subkey in subkeys {
         feistel(&mut lr, subkey);
     }
     lr.swap();
     lr.into()
 }
 
-fn feistel(lr: &mut LR, subkey: &Subkey) {
+fn feistel(lr: &mut LR, subkey: Subkey) {
     let tmp = lr.right;
     lr.right = lr.left ^ f_function(lr.right, subkey);
     lr.left = tmp;
 }
 
 #[must_use]
-fn f_function(right: Block32, subkey: &Subkey) -> Block32 {
+fn f_function(right: Block32, subkey: Subkey) -> Block32 {
     let expanded = expansion_permutation(right);
     let xored = expanded ^ subkey;
     let sboxed = s_box_substitution(xored);
