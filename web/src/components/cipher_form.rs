@@ -190,11 +190,13 @@ fn clean_hex_input(input: String) -> String {
 fn KeyInput(set_key_input: WriteSignal<String>) -> impl IntoView {
     view! {
         <div class="form-group">
-            <label>"Secret Key"</label>
+            <div class="lable-header">
+                <label>"Secret Key"</label>
+                <span class="input-hint">"Prefix: 0x (Hex), 0b (Bin), or nothing (Text)"</span>
+            </div>
             <input
                 type="text"
-                prop:key_input
-                placeholder="Enter key..."
+                placeholder="Enter key (e.g., 0x1A2B...)"
                 on:input=move |ev| set_key_input(event_target_value(&ev))
             />
         </div>
@@ -219,22 +221,19 @@ fn TextInput(
 
     view! {
         <div class="form-group">
-            <label>
-                {move || {
-                    match mode.get() {
-                        OperationMode::Encrypt => "Plaintext Input",
-                        OperationMode::Decrypt => "Ciphertext (Hex) Input",
-                    }
-                }}
-            </label>
             {move || {
                 match mode.get() {
                     OperationMode::Encrypt => {
                         view! {
+                            <div class="lable-header">
+                                <label>"Plaintext Input"</label>
+                                <span class="input-hint">
+                                    "Prefix: 0x (Hex), 0b (Bin), or nothing (Text)"
+                                </span>
+                            </div>
                             <div class="input-wrapper standard-input">
                                 <input
                                     type="text"
-                                    prop:value=move || text_input.get()
                                     placeholder="Enter text..."
                                     on:input=handle_text_input
                                     spellcheck="false"
@@ -245,6 +244,9 @@ fn TextInput(
                     }
                     OperationMode::Decrypt => {
                         view! {
+                            <div class="lable-header">
+                                <label>"Ciphertext Input"</label>
+                            </div>
                             <div class="input-wrapper hex-input">
                                 <span class="prefix">"0x"</span>
                                 <input
