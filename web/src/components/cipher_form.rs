@@ -91,7 +91,7 @@ fn RadioButton(
     value: OperationMode,
     current: ReadSignal<OperationMode>,
     set_current: WriteSignal<OperationMode>,
-) -> impl IntoView {
+) -> AnyView {
     view! {
         <div class="radio-button">
             <label>
@@ -106,6 +106,7 @@ fn RadioButton(
             </label>
         </div>
     }
+    .into_any()
 }
 
 #[component]
@@ -114,7 +115,7 @@ fn ConfigurationSection(
     set_mode: WriteSignal<OperationMode>,
     output_fmt: ReadSignal<OutputFormat>,
     update_output: impl Fn(OutputFormat) + Copy + Send + 'static,
-) -> impl IntoView {
+) -> AnyView {
     let handle_format_change = move |ev| {
         let val = event_target_value(&ev);
         let fmt = OutputFormat::from_str(&val).unwrap_or_default();
@@ -176,7 +177,7 @@ fn ConfigurationSection(
                 }}
             </div>
         </div>
-    }
+    }.into_any()
 }
 
 fn clean_hex_input(input: String) -> String {
@@ -187,7 +188,7 @@ fn clean_hex_input(input: String) -> String {
 }
 
 #[component]
-fn KeyInput(set_key_input: WriteSignal<String>) -> impl IntoView {
+fn KeyInput(set_key_input: WriteSignal<String>) -> AnyView {
     view! {
         <div class="form-group">
             <div class="lable-header">
@@ -201,6 +202,7 @@ fn KeyInput(set_key_input: WriteSignal<String>) -> impl IntoView {
             />
         </div>
     }
+    .into_any()
 }
 
 #[component]
@@ -208,7 +210,7 @@ fn TextInput(
     mode: ReadSignal<OperationMode>,
     text_input: ReadSignal<String>,
     set_text_input: WriteSignal<String>,
-) -> impl IntoView {
+) -> AnyView {
     let handle_hex_input = move |ev| {
         let val = event_target_value(&ev);
         let cleaned = clean_hex_input(val);
@@ -264,6 +266,7 @@ fn TextInput(
             }}
         </div>
     }
+    .into_any()
 }
 
 #[component]
@@ -272,7 +275,7 @@ fn OutputBox(
     output_fmt: ReadSignal<OutputFormat>,
     copy_to_clipboard: impl Fn(String) + Copy + Send + 'static,
     copy_feedback: ReadSignal<bool>,
-) -> impl IntoView {
+) -> AnyView {
     view! {
         {move || {
             if output.get().is_empty() {
@@ -294,10 +297,11 @@ fn OutputBox(
                 .into_any()
         }}
     }
+    .into_any()
 }
 
 #[component]
-fn ErrorBox(error_msg: ReadSignal<String>) -> impl IntoView {
+fn ErrorBox(error_msg: ReadSignal<String>) -> AnyView {
     view! {
         {move || {
             if error_msg.get().is_empty() {
@@ -306,4 +310,5 @@ fn ErrorBox(error_msg: ReadSignal<String>) -> impl IntoView {
             view! { <div class="error-box">{error_msg.get()}</div> }.into_any()
         }}
     }
+    .into_any()
 }
