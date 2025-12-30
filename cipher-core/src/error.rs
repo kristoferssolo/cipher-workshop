@@ -44,8 +44,8 @@ pub enum BlockError {
     ParseError(#[from] ParseIntError),
 
     /// Byte size length
-    #[error("Invalid byte string length: expected no more than 8, found {0}")]
-    InvalidByteStringLength(usize),
+    #[error("Invalid byte string length: expected no more than {max}, found {actual}")]
+    InvalidByteStringLength { max: usize, actual: usize },
 
     /// String to int conversion error
     #[error("String-to-{typ} conversion error: {err}")]
