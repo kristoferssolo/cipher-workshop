@@ -1,5 +1,10 @@
 use crate::{Block128, key::Subkey};
 
+/// XORs the state with a round key (AddRoundKey step).
+///
+/// Each round of AES combines the current state with a derived subkey
+/// using bitwise XOR. This operation is its own inverse.
+#[must_use]
 pub fn add_round_key(state: Block128, subkeys: &[Subkey; 4]) -> Block128 {
     let [k0, k1, k2, k3] = [subkeys[0], subkeys[1], subkeys[2], subkeys[3]];
     let key_block = (k0 << 96) | (k1 << 64) | (k2 << 32) | k3;

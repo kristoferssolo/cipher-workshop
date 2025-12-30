@@ -1,5 +1,9 @@
 use crate::Block128;
 
+/// Mixes each column using matrix multiplication in GF(2^8) (MixColumns step).
+///
+/// Each column is treated as a polynomial and multiplied by a fixed polynomial
+/// modulo x^4 + 1. This provides diffusion across the rows.
 #[must_use]
 pub fn mix_columns(block: Block128) -> Block128 {
     let mut bytes = block.to_be_bytes();
@@ -28,6 +32,7 @@ pub fn mix_columns(block: Block128) -> Block128 {
     Block128::from_be_bytes(bytes)
 }
 
+/// Inverse of [`mix_columns`] using the inverse matrix.
 #[must_use]
 pub fn inv_mix_columns(block: Block128) -> Block128 {
     let mut bytes = block.to_be_bytes();

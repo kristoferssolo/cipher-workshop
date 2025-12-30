@@ -1,5 +1,9 @@
 use crate::Block128;
 
+/// Cyclically shifts rows of the state matrix (ShiftRows step).
+///
+/// Row 0: no shift, Row 1: shift left 1, Row 2: shift left 2, Row 3: shift left 3.
+/// This provides diffusion across the columns.
 #[must_use]
 pub const fn shift_rows(block: Block128) -> Block128 {
     let b = block.to_be_bytes();
@@ -32,6 +36,7 @@ pub const fn shift_rows(block: Block128) -> Block128 {
     Block128::from_be_bytes(out)
 }
 
+/// Inverse of [`shift_rows`] - shifts rows right instead of left.
 #[must_use]
 pub const fn inv_shift_rows(block: Block128) -> Block128 {
     let b = block.to_be_bytes();
