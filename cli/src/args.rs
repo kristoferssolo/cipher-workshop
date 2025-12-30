@@ -12,11 +12,15 @@ pub struct Args {
     #[arg(short, long)]
     pub algorithm: Algorithm,
 
-    /// Key used for encryption/decryption. Can be a string or a path to a file
+    /// Key used for encryption/decryption (hex string, e.g., 0x2b7e...)
     #[arg(short, long, required = true)]
     pub key: String,
 
-    /// The text to encrypt/decrypt. Can be a string or a path to a file
+    /// Initialization vector for CBC mode (hex string, e.g., 0x0001...)
+    #[arg(long)]
+    pub iv: Option<String>,
+
+    /// The text to encrypt/decrypt
     #[arg(value_name = "TEXT", required = true)]
     pub text: String,
 
@@ -31,6 +35,7 @@ impl From<Args> for CipherContext {
             algorithm: args.algorithm,
             operation: args.operation,
             key: args.key,
+            iv: args.iv,
             input_text: args.text,
             output_format: args.output_format.unwrap_or_default(),
         }
