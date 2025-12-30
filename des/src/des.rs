@@ -68,12 +68,14 @@ impl BlockCipher for Des {
     }
 }
 
+/// Initial Permutation - rearranges input bits according to IP table.
 #[inline]
 #[must_use]
 fn ip(block: Block64) -> Block64 {
     permutate(block.as_u64(), 64, 64, &IP).into()
 }
 
+/// Executes 16 Feistel rounds with the given subkeys.
 #[must_use]
 fn feistel_rounds<'a, I>(block: Block64, subkeys: I) -> Block64
 where
@@ -88,12 +90,14 @@ where
     lr.into()
 }
 
+/// Single Feistel round: L' = R, R' = L XOR f(R, K).
 fn feistel(lr: &mut LR, subkey: Subkey) {
     let tmp = lr.right;
     lr.right = lr.left ^ f_function(lr.right, subkey);
     lr.left = tmp;
 }
 
+/// The f-function: expansion -> XOR with key -> S-box -> P-box.
 #[must_use]
 fn f_function(right: Block32, subkey: Subkey) -> Block32 {
     let expanded = expansion_permutation(right);
@@ -102,12 +106,14 @@ fn f_function(right: Block32, subkey: Subkey) -> Block32 {
     p_box_permutation(sboxed)
 }
 
+/// Expands 32 bits to 48 bits using the E-box permutation.
 #[inline]
 #[must_use]
 fn expansion_permutation(right: Block32) -> Block48 {
     permutate(right.as_u64(), 32, 48, &E_BOX).into()
 }
 
+/// Substitutes 48 bits through 8 S-boxes, producing 32 bits.
 #[must_use]
 fn s_box_substitution(block: Block48) -> Block32 {
     let six_bit_blocks = block.as_block6_array();
@@ -127,12 +133,14 @@ fn s_box_substitution(block: Block48) -> Block32 {
         .into()
 }
 
+/// Permutes 32 bits according to the P-box table.
 #[inline]
 #[must_use]
 fn p_box_permutation(block: Block32) -> Block32 {
     permutate(block.as_u64(), 32, 32, &P_BOX).into()
 }
 
+/// Final Permutation - inverse of IP, produces the ciphertext.
 #[inline]
 #[must_use]
 fn fp(result: Block64) -> Block64 {
