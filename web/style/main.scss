@@ -312,6 +312,35 @@ main {
   }
 }
 
+@mixin input-styles {
+  width: 100%;
+  background: var(--bg-input);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: "Consolas", "Monaco", monospace;
+  box-sizing: border-box;
+
+  transition:
+    background $trans-time,
+    border-color $trans-time,
+    box-shadow $trans-time,
+    color $trans-time;
+
+  &:focus,
+  &:focus-within {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+  }
+
+  &::placeholder {
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+}
+
 .form-group {
   margin-bottom: 1.5rem;
 
@@ -327,15 +356,8 @@ main {
 
   input[type="text"],
   textarea {
-    width: 100%;
+    @include input-styles;
     padding: 12px;
-    background: var(--bg-input);
-    color: var(--text-main);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 1rem;
-    box-sizing: border-box;
-    font-family: monospace;
   }
 
   &:focus {
@@ -549,7 +571,7 @@ main {
     font-size: 6rem;
     font-weight: 800;
     color: var(--error);
-    font-family: "Consolar", "Monaco", monospace;
+    font-family: "Consolas", "Monaco", monospace;
     opacity: 0.8;
     line-height: 1;
     margin-bottom: 1rem;
@@ -583,4 +605,49 @@ main {
   display: inline-block;
   width: auto;
   text-align: center;
+}
+
+.input-wrapper {
+  width: 100%;
+
+  &.hex-input {
+    @include input-styles;
+
+    display: flex;
+    align-items: center;
+    padding: 0;
+    cursor: text;
+
+    .prefix {
+      padding-left: 12px;
+      padding-right: 2px;
+      color: var(--text-muted);
+      user-select: none;
+      font-weight: bold;
+      opacity: 0.8;
+    }
+
+    input[type="text"] {
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      outline: none;
+      margin: 0;
+      width: 100%;
+
+      padding: 12px 12px 12px 0px;
+
+      &:focus {
+        outline: none;
+        box-shadow: none;
+        border: none;
+      }
+    }
+  }
+
+  &.standard-input {
+    input[type="text"] {
+      width: 100%;
+    }
+  }
 }

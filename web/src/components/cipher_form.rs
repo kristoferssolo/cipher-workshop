@@ -1,5 +1,5 @@
 use cipher_factory::prelude::*;
-use leptos::prelude::*;
+use leptos::{prelude::*, tachys::dom::event_target_value};
 use std::{str::FromStr, time::Duration};
 use strum::IntoEnumIterator;
 use web_sys::WheelEvent;
@@ -22,14 +22,20 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
         set_output(String::new());
 
         let key = key_input.get();
-        let text = text_input.get();
+        let raw_text = text_input.get();
 
-        if key.is_empty() || text.is_empty() {
+        if key.is_empty() || raw_text.is_empty() {
             set_error_msg("Please enter both key and input text.".to_string());
             return;
         }
 
-        let context = CipherContext::new(algorithm, mode.get(), key, text, output_fmt.get());
+        let final_text = if mode.get() == OperationMode::Decrypt {
+            format!("0x{raw_text}")
+        } else {
+            raw_text
+        };
+
+        let context = CipherContext::new(algorithm, mode.get(), key, final_text, output_fmt.get());
         match context.process() {
             Ok(out) => set_output(out),
             Err(e) => set_error_msg(e.to_string()),
@@ -62,7 +68,7 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
                 update_output=update_output
             />
             <KeyInput set_key_input=set_key_input />
-            <TextInput mode=mode set_text_input=set_text_input />
+            <TextInput mode=mode text_input=text_input set_text_input=set_text_input />
 
             <button class="btn-primary" on:click=move |_| handle_submit()>
                 {move || format!("{} using {algorithm}", mode.get())}
@@ -173,6 +179,13 @@ fn ConfigurationSection(
     }
 }
 
+fn clean_hex_input(input: String) -> String {
+    input
+        .chars()
+        .filter(|ch| ch.is_ascii_hexdigit())
+        .collect::<String>()
+}
+
 #[component]
 fn KeyInput(set_key_input: WriteSignal<String>) -> impl IntoView {
     view! {
@@ -191,8 +204,19 @@ fn KeyInput(set_key_input: WriteSignal<String>) -> impl IntoView {
 #[component]
 fn TextInput(
     mode: ReadSignal<OperationMode>,
+    text_input: ReadSignal<String>,
     set_text_input: WriteSignal<String>,
 ) -> impl IntoView {
+    let handle_hex_input = move |ev| {
+        let val = event_target_value(&ev);
+        let cleaned = clean_hex_input(val);
+        set_text_input(cleaned);
+    };
+
+    let handle_text_input = move |ev| {
+        set_text_input(event_target_value(&ev));
+    };
+
     view! {
         <div class="form-group">
             <label>
@@ -203,12 +227,39 @@ fn TextInput(
                     }
                 }}
             </label>
-            <input
-                type="text"
-                prop:text_input
-                placeholder="Enter text..."
-                on:input=move |ev| set_text_input(event_target_value(&ev))
-            />
+            {move || {
+                match mode.get() {
+                    OperationMode::Encrypt => {
+                        view! {
+                            <div class="input-wrapper standard-input">
+                                <input
+                                    type="text"
+                                    prop:value=move || text_input.get()
+                                    placeholder="Enter text..."
+                                    on:input=handle_text_input
+                                    spellcheck="false"
+                                />
+                            </div>
+                        }
+                            .into_any()
+                    }
+                    OperationMode::Decrypt => {
+                        view! {
+                            <div class="input-wrapper hex-input">
+                                <span class="prefix">"0x"</span>
+                                <input
+                                    type="text"
+                                    prop:value=move || text_input.get()
+                                    placeholder="001122"
+                                    on:input=handle_hex_input
+                                    spellcheck="false"
+                                />
+                            </div>
+                        }
+                            .into_any()
+                    }
+                }
+            }}
         </div>
     }
 }
