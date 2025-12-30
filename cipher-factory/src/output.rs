@@ -2,21 +2,25 @@ use cipher_core::Output;
 use std::{convert::Infallible, fmt::Display, str::FromStr};
 use strum::EnumIter;
 
+/// Output format for displaying cipher results.
+///
+/// Controls how decrypted data is presented to the user.
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, EnumIter)]
 pub enum OutputFormat {
-    /// Binary output
+    /// Binary (base-2) representation.
     Binary,
-    /// Octal output
+    /// Octal (base-8) representation.
     Octal,
-    /// Decimal output
+    /// Hexadecimal (base-16) representation.
     #[default]
     Hex,
-    /// Text output (ASCII)
+    /// ASCII text (attempts UTF-8 decoding).
     Text,
 }
 
 impl OutputFormat {
+    /// Formats the cipher output according to this format.
     #[must_use]
     pub fn format(&self, value: &Output) -> String {
         match self {

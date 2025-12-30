@@ -1,3 +1,8 @@
+//! Cipher factory for creating and configuring block ciphers.
+//!
+//! Provides a unified interface for AES and DES encryption/decryption
+//! with configurable output formats.
+
 mod algorithm;
 mod context;
 mod operation;

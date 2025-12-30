@@ -1,6 +1,6 @@
 use crate::Block128;
 
-/// Mixes each column using matrix multiplication in GF(2^8) (MixColumns step).
+/// Mixes each column using matrix multiplication in GF(2^8) ([`MixColumns`] step).
 ///
 /// Each column is treated as a polynomial and multiplied by a fixed polynomial
 /// modulo x^4 + 1. This provides diffusion across the rows.

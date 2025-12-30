@@ -1,6 +1,6 @@
 use crate::{Block128, key::Subkey};
 
-/// XORs the state with a round key (AddRoundKey step).
+/// XORs the state with a round key ([`AddRoundKey`] step).
 ///
 /// Each round of AES combines the current state with a derived subkey
 /// using bitwise XOR. This operation is its own inverse.
