@@ -19,4 +19,4 @@ mod key;
 mod operations;
 mod sbox;
 
-pub use {aes::Aes, block::Block128, block::Block32, iv::Iv};
+pub use {aes::Aes, block::Block32, block::Block128, iv::Iv};

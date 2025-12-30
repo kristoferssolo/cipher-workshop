@@ -11,6 +11,10 @@ pub enum CipherError {
     #[error("Invalid block size: expected {expected} bytes, got {actual}.")]
     InvalidBlockSize { expected: usize, actual: usize },
 
+    /// Invalid PKCS#7 padding
+    #[error("Invalid padding: {0}")]
+    InvalidPadding(String),
+
     /// Error parsing block from string
     #[error("{0}")]
     BlockParseError(#[from] BlockError),
