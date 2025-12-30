@@ -1,11 +1,23 @@
 use crate::{CipherAction, CipherError, CipherResult, Output};
 
-/// Generic block cipher trait.
+/// Generic block cipher trait for symmetric encryption algorithms.
 ///
-/// Implements the standard encrypt/decrypt interface for block ciphers.
-/// Implementers define `transform_impl` to handle the core algorithm,
-/// while `transform` provides validation and convenience wrappers.
+/// Provides a standard encrypt/decrypt interface for block ciphers like AES and DES.
+/// Implementers define [`transform_impl`](Self::transform_impl) to handle the core algorithm,
+/// while [`transform`](Self::transform) provides block size validation.
+///
+/// # Example
+/// ```ignore
+/// use cipher_core::{BlockCipher, CipherAction};
+///
+/// let cipher = Aes::new(key);
+/// let ciphertext = cipher.encrypt(&plaintext)?;
+/// let decrypted = cipher.decrypt(&ciphertext)?;
+/// ```
 pub trait BlockCipher {
+    /// Returns the block size in bytes for this cipher.
+    ///
+    /// Common values: 8 bytes (DES), 16 bytes (AES-128).
     fn block_size(&self) -> usize;
 
     /// Core cipher transformation (must be implemented by concrete types).
@@ -35,7 +47,7 @@ pub trait BlockCipher {
     ///
     /// # Errors
     ///
-    /// Returns `CipherError::InvalidBlockSize` if the plaintext is not exactly `BLOCK_SIZE` bytes.
+    /// Returns `CipherError::InvalidBlockSize` if the plaintext is not exactly `block_size()` bytes.
     fn encrypt(&self, plaintext: &[u8]) -> CipherResult<Output> {
         self.transform(plaintext, CipherAction::Encrypt)
     }
@@ -44,7 +56,7 @@ pub trait BlockCipher {
     ///
     /// # Errors
     ///
-    /// Returns `CipherError::InvalidBlockSize` if the plaintext is not exactly `BLOCK_SIZE` bytes.
+    /// Returns `CipherError::InvalidBlockSize` if the ciphertext is not exactly `block_size()` bytes.
     fn decrypt(&self, ciphertext: &[u8]) -> CipherResult<Output> {
         self.transform(ciphertext, CipherAction::Decrypt)
     }
