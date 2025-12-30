@@ -13,10 +13,11 @@
 
 mod aes;
 mod block;
+mod cbc;
 mod constants;
 mod iv;
 mod key;
 mod operations;
 mod sbox;
 
-pub use {aes::Aes, block::Block32, block::Block128, iv::Iv};
+pub use {aes::Aes, block::Block32, block::Block128, cbc::AesCbc, iv::Iv};

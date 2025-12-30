@@ -32,7 +32,7 @@ impl Aes {
         &self.subkeys
     }
 
-    fn encrypt_block(&self, mut state: Block128) -> Block128 {
+    pub(crate) fn encrypt_block(&self, mut state: Block128) -> Block128 {
         let mut keys = self.subkeys.chunks();
         state = add_round_key(state, keys.next().expect("Round key 0"));
 
@@ -51,7 +51,7 @@ impl Aes {
         state
     }
 
-    fn decrypt_block(&self, mut state: Block128) -> Block128 {
+    pub(crate) fn decrypt_block(&self, mut state: Block128) -> Block128 {
         let mut keys = self.subkeys.chunks_rev();
         state = add_round_key(state, keys.next().expect("Final round key"));
 
