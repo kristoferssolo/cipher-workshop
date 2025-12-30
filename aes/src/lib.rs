@@ -14,8 +14,9 @@
 mod aes;
 mod block;
 mod constants;
+mod iv;
 mod key;
 mod operations;
 mod sbox;
 
-pub use {aes::Aes, block::Block128, block::Block32};
+pub use {aes::Aes, block::Block128, block::Block32, iv::Iv};
