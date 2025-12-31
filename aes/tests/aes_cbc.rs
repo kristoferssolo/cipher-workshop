@@ -1,29 +1,27 @@
-//! NIST SP 800-38A AES-128-CBC test vectors.
-
 use aes::{AesCbc, Iv};
 use claims::assert_ok;
 
 // NIST SP 800-38A test vectors for AES-128-CBC
-const NIST_KEY: u128 = 0x2b7e1516_28aed2a6_abf71588_09cf4f3c;
-const NIST_IV: u128 = 0x00010203_04050607_08090a0b_0c0d0e0f;
+const NIST_KEY: u128 = 0x2b7e_1516_28ae_d2a6_abf7_1588_09cf_4f3c;
+const NIST_IV: u128 = 0x0001_0203_0405_0607_0809_0a0b_0c0d_0e0f;
 
 // Test vector blocks (plaintext -> ciphertext)
 const NIST_BLOCKS: [(u128, u128); 4] = [
     (
-        0x6bc1bee2_2e409f96_e93d7e11_7393172a,
-        0x7649abac_8119b246_cee98e9b_12e9197d,
+        0x6bc1_bee2_2e40_9f96_e93d_7e11_7393_172a,
+        0x7649_abac_8119_b246_cee9_8e9b_12e9_197d,
     ),
     (
-        0xae2d8a57_1e03ac9c_9eb76fac_45af8e51,
-        0x5086cb9b_507219ee_95db113a_917678b2,
+        0xae2d_8a57_1e03_ac9c_9eb7_6fac_45af_8e51,
+        0x5086_cb9b_5072_19ee_95db_113a_9176_78b2,
     ),
     (
-        0x30c81c46_a35ce411_e5fbc119_1a0a52ef,
-        0x73bed6b8_e3c1743b_7116e69e_22229516,
+        0x30c8_1c46_a35c_e411_e5fb_c119_1a0a_52ef,
+        0x73be_d6b8_e3c1_743b_7116_e69e_2222_9516,
     ),
     (
-        0xf69f2445_df4f9b17_ad2b417b_e66c3710,
-        0x3ff1caa1_681fac09_120eca30_7586e1a1,
+        0xf69f_2445_df4f_9b17_ad2b_417b_e66c_3710,
+        0x3ff1_caa1_681f_ac09_120e_ca30_7586_e1a1,
     ),
 ];
 

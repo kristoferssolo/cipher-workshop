@@ -17,18 +17,18 @@ pub fn Home() -> impl IntoView {
                     <p>
                         "A legacy algorithm from the 1970s. While historically significant, "
                         "it is now considered insecure due to its short 56-bit key length. "
-                        "This tool simulates " <strong>"DES-ECB"</strong>
-                        " mode for educational comparison."
+                        "This tool uses " <strong>"DES-ECB"</strong>
+                        " mode for educational purposes."
                     </p>
                 </div>
 
                 <div class="info-card">
                     <h3>"AES (Advanced Encryption Standard)"</h3>
                     <p>
-                        "The modern standard for secure data transmission. This tool uses "
-                        <strong>"AES-128-GCM"</strong>
-                        ", which provides both confidentiality and data integrity. "
-                        "It is widely used across the internet (HTTPS) and government communications."
+                        "The modern standard for symmetric encryption. This tool offers "
+                        <strong>"AES-128-ECB"</strong> " for single-block operations and "
+                        <strong>"AES-128-CBC"</strong> " for encrypting arbitrary data with "
+                        "PKCS#7 padding."
                     </p>
                 </div>
             </div>
