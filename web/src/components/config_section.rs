@@ -1,4 +1,3 @@
-use crate::components::radio_button::RadioButton;
 use cipher_factory::prelude::*;
 use leptos::{prelude::*, tachys::dom::event_target_value};
 use std::str::FromStr;
@@ -11,7 +10,7 @@ pub fn ConfigurationSection(
     set_mode: WriteSignal<OperationMode>,
     output_fmt: ReadSignal<OutputFormat>,
     update_output: impl Fn(OutputFormat) + Copy + Send + 'static,
-) -> AnyView {
+) -> impl IntoView {
     let handle_format_change = move |ev| {
         let val = event_target_value(&ev);
         let fmt = OutputFormat::from_str(&val).unwrap_or_default();
@@ -39,39 +38,49 @@ pub fn ConfigurationSection(
 
     view! {
         <div class="form-group">
-            <label>"Configuration"</label>
+            <label>"Mode"</label>
             <div class="controls-row">
-                <div class="radio-group">
-                    <RadioButton value=OperationMode::Encrypt current=mode set_current=set_mode />
-                    <RadioButton value=OperationMode::Decrypt current=mode set_current=set_mode />
+                <div class="mode-toggle">
+                    <button
+                        type="button"
+                        class=move || if mode.get() == OperationMode::Encrypt { "mode-btn active" } else { "mode-btn" }
+                        on:click=move |_| set_mode(OperationMode::Encrypt)
+                    >
+                        "Encrypt"
+                    </button>
+                    <button
+                        type="button"
+                        class=move || if mode.get() == OperationMode::Decrypt { "mode-btn active" } else { "mode-btn" }
+                        on:click=move |_| set_mode(OperationMode::Decrypt)
+                    >
+                        "Decrypt"
+                    </button>
                 </div>
                 {move || {
                     if mode.get() != OperationMode::Decrypt {
                         return view! { <span></span> }.into_any();
                     }
                     view! {
-                        <div class="format-controls-box">
-                            <div class="format-controls">
-                                <label>"Output format:"</label>
-                                <select
-                                    on:wheel=handle_format_wheel
-                                    on:change=handle_format_change
-                                    prop:value=move || output_fmt.get().to_string()
-                                >
-                                    {OutputFormat::iter()
-                                        .map(|fmt| {
-                                            view! {
-                                                <option value=fmt.to_string()>{fmt.to_string()}</option>
-                                            }
-                                        })
-                                        .collect_view()}
-                                </select>
-                            </div>
+                        <div class="format-select">
+                            <label>"Output:"</label>
+                            <select
+                                on:wheel=handle_format_wheel
+                                on:change=handle_format_change
+                                prop:value=move || output_fmt.get().to_string()
+                            >
+                                {OutputFormat::iter()
+                                    .map(|fmt| {
+                                        view! {
+                                            <option value=fmt.to_string()>{fmt.to_string()}</option>
+                                        }
+                                    })
+                                    .collect_view()}
+                            </select>
                         </div>
                     }
                         .into_any()
                 }}
             </div>
         </div>
-    }.into_any()
+    }
 }

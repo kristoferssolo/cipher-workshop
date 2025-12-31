@@ -6,5 +6,4 @@ pub mod file_input;
 pub mod iv_input;
 pub mod key_input;
 pub mod output_box;
-pub mod radio_button;
 pub mod text_input;

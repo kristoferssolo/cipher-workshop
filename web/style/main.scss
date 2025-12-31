@@ -701,11 +701,13 @@ main {
   }
 }
 
-// Input mode toggle (Text/File switcher)
+// Mode toggle buttons (shared style for encrypt/decrypt and text/file)
+.mode-toggle,
 .input-mode-toggle {
   display: flex;
   gap: 4px;
   background: var(--bg-input);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 2px;
 
@@ -713,10 +715,10 @@ main {
     background: transparent;
     border: none;
     color: var(--text-muted);
-    padding: 4px 12px;
+    padding: 6px 14px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 600;
     transition: all 0.2s;
 
@@ -727,6 +729,41 @@ main {
     &.active {
       background: var(--primary);
       color: var(--bg-body);
+    }
+  }
+}
+
+// Format selector (appears next to mode toggle in decrypt mode)
+.format-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 10px;
+  animation: fadeIn 0.2s ease-in-out;
+
+  label {
+    margin: 0;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  select {
+    background: var(--bg-body);
+    border: none;
+    border-radius: 4px;
+    color: var(--text-main);
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
     }
   }
 }
