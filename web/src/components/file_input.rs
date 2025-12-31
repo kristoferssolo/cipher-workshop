@@ -41,7 +41,7 @@ fn read_file(
 fn InputModeToggle(
     input_mode: ReadSignal<InputMode>,
     set_input_mode: WriteSignal<InputMode>,
-) -> impl IntoView {
+) -> AnyView {
     view! {
         <div class="input-mode-toggle">
             <button
@@ -64,6 +64,7 @@ fn InputModeToggle(
             </button>
         </div>
     }
+    .into_any()
 }
 
 #[component]
@@ -71,7 +72,7 @@ fn TextAreaInput(
     text_content: ReadSignal<String>,
     set_text_content: WriteSignal<String>,
     is_decrypt_mode: Memo<bool>,
-) -> impl IntoView {
+) -> AnyView {
     let handle_text_change = move |ev: Event| {
         if let Some(target) = ev.target() {
             let textarea: web_sys::HtmlTextAreaElement = target.unchecked_into();
@@ -99,6 +100,7 @@ fn TextAreaInput(
             </div>
         </div>
     }
+    .into_any()
 }
 
 #[component]
@@ -107,7 +109,7 @@ fn FileDropZone(
     set_file_data: WriteSignal<Option<Vec<u8>>>,
     file_name: ReadSignal<Option<String>>,
     set_file_name: WriteSignal<Option<String>>,
-) -> impl IntoView {
+) -> AnyView {
     let (is_dragging, set_is_dragging) = signal(false);
 
     let handle_file_change = move |ev: Event| {
@@ -193,6 +195,7 @@ fn FileDropZone(
             </label>
         </div>
     }
+    .into_any()
 }
 
 #[component]
@@ -201,7 +204,7 @@ fn FileSelected(
     file_data: ReadSignal<Option<Vec<u8>>>,
     set_file_name: WriteSignal<Option<String>>,
     set_file_data: WriteSignal<Option<Vec<u8>>>,
-) -> impl IntoView {
+) -> AnyView {
     let clear_file = move |ev: web_sys::MouseEvent| {
         ev.prevent_default();
         ev.stop_propagation();
@@ -221,16 +224,18 @@ fn FileSelected(
             </button>
         </div>
     }
+    .into_any()
 }
 
 #[component]
-fn FilePlaceholder() -> impl IntoView {
+fn FilePlaceholder() -> AnyView {
     view! {
         <div class="file-placeholder">
             <span class="upload-icon">"[+]"</span>
             <span>"Click to select a file or drag and drop"</span>
         </div>
     }
+    .into_any()
 }
 
 #[component]
@@ -244,7 +249,7 @@ pub fn FileTextInput(
     file_name: ReadSignal<Option<String>>,
     set_file_name: WriteSignal<Option<String>>,
     is_decrypt_mode: Memo<bool>,
-) -> impl IntoView {
+) -> AnyView {
     view! {
         <div class="form-group">
             <div class="label-header">
@@ -281,4 +286,5 @@ pub fn FileTextInput(
             }}
         </div>
     }
+    .into_any()
 }

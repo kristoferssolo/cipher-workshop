@@ -10,7 +10,7 @@ use leptos::prelude::*;
 use std::time::Duration;
 
 #[component]
-pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
+pub fn CipherForm(algorithm: Algorithm) -> AnyView {
     let (mode, set_mode) = signal(OperationMode::Encrypt);
     let (output_fmt, set_output_fmt) = signal(OutputFormat::Hex);
 
@@ -101,4 +101,5 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
 
         </div>
     }
+    .into_any()
 }

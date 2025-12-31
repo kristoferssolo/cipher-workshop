@@ -10,7 +10,7 @@ pub fn ConfigurationSection(
     set_mode: WriteSignal<OperationMode>,
     output_fmt: ReadSignal<OutputFormat>,
     update_output: impl Fn(OutputFormat) + Copy + Send + 'static,
-) -> impl IntoView {
+) -> AnyView {
     let handle_format_change = move |ev| {
         let val = event_target_value(&ev);
         let fmt = OutputFormat::from_str(&val).unwrap_or_default();
@@ -83,4 +83,5 @@ pub fn ConfigurationSection(
             </div>
         </div>
     }
+    .into_any()
 }

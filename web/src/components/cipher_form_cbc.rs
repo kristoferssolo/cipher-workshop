@@ -13,7 +13,7 @@ use wasm_bindgen::JsCast;
 use web_sys::{Blob, Url};
 
 #[component]
-pub fn CipherFormCbc() -> impl IntoView {
+pub fn CipherFormCbc() -> AnyView {
     let (mode, set_mode) = signal(OperationMode::Encrypt);
     let (output_fmt, set_output_fmt) = signal(OutputFormat::Hex);
 
@@ -56,7 +56,7 @@ pub fn CipherFormCbc() -> impl IntoView {
         let formatted_iv = format!("0x{iv}");
 
         // Get input data
-        let input_data: Vec<u8> = match input_mode.get() {
+        let input_data = match input_mode.get() {
             InputMode::Text => {
                 let text = text_content.get();
                 if text.is_empty() {
@@ -192,7 +192,10 @@ pub fn CipherFormCbc() -> impl IntoView {
                         <div class="result-toolbar">
                             <strong>"Output ("{output_fmt.get().to_string()}")"</strong>
                             <div class="result-actions">
-                                <button class="btn-copy" on:click=move |_| copy_to_clipboard(output.get())>
+                                <button
+                                    class="btn-copy"
+                                    on:click=move |_| copy_to_clipboard(output.get())
+                                >
                                     {move || if copy_feedback.get() { "Copied" } else { "Copy" }}
                                 </button>
                                 {move || {
@@ -201,7 +204,8 @@ pub fn CipherFormCbc() -> impl IntoView {
                                             <button class="btn-download" on:click=download_output>
                                                 "Download"
                                             </button>
-                                        }.into_any()
+                                        }
+                                            .into_any()
                                     } else {
                                         view! { <span></span> }.into_any()
                                     }
@@ -209,21 +213,25 @@ pub fn CipherFormCbc() -> impl IntoView {
                             </div>
                         </div>
                         <div class="result-content">
-                            <code>{move || {
-                                let out = output.get();
-                                if out.len() > 1000 {
-                                    format!("{}... ({} chars total)", &out[..1000], out.len())
-                                } else {
-                                    out
-                                }
-                            }}</code>
+                            <code>
+                                {move || {
+                                    let out = output.get();
+                                    if out.len() > 1000 {
+                                        format!("{}... ({} chars total)", &out[..1000], out.len())
+                                    } else {
+                                        out
+                                    }
+                                }}
+                            </code>
                         </div>
                     </div>
-                }.into_any()
+                }
+                    .into_any()
             }}
             <ErrorBox error_msg=error_msg />
         </div>
     }
+    .into_any()
 }
 
 fn parse_hex_string(s: &str) -> Result<Vec<u8>, String> {
@@ -234,7 +242,7 @@ fn parse_hex_string(s: &str) -> Result<Vec<u8>, String> {
         .unwrap_or(trimmed);
 
     // Remove whitespace and newlines
-    let s: String = s.chars().filter(|c| !c.is_whitespace()).collect();
+    let s = s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
 
     if !s.len().is_multiple_of(2) {
         return Err("Hex string must have even length".to_string());
@@ -282,10 +290,7 @@ fn download_bytes(bytes: &[u8], filename: &str) {
         return;
     };
 
-    let Some(window) = web_sys::window() else {
-        return;
-    };
-    let Some(document) = window.document() else {
+    let Some(document) = window().document() else {
         return;
     };
     let Some(a) = document.create_element("a").ok() else {
@@ -295,7 +300,7 @@ fn download_bytes(bytes: &[u8], filename: &str) {
     let _ = a.set_attribute("href", &url);
     let _ = a.set_attribute("download", filename);
 
-    let a: web_sys::HtmlElement = a.unchecked_into();
+    let a = a.unchecked_into::<web_sys::HtmlElement>();
     a.click();
 
     let _ = Url::revoke_object_url(&url);

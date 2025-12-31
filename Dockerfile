@@ -1,48 +1,51 @@
+# Compute recipe
 FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
 WORKDIR /app
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
+# Install tools and build dependencies
 FROM rustlang/rust:nightly-bookworm AS cacher
+WORKDIR /app
 
-RUN curl -LO https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz
-RUN tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz
-RUN cp cargo-binstall /usr/local/cargo/bin
+# Install cargo-binstall
+RUN curl -L https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz | tar -xz -C /usr/local/bin
+
 RUN cargo binstall cargo-leptos cargo-chef -y
 RUN apt-get update -y && apt-get install -y --no-install-recommends clang
 RUN rustup target add wasm32-unknown-unknown
 
-WORKDIR /app
+# Cook dependencies
 COPY --from=chef /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 
+# Actual build
 FROM rustlang/rust:nightly-bookworm AS builder
-
-RUN wget https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz
-RUN tar -xvf cargo-binstall-x86_64-unknown-linux-musl.tgz
-RUN cp cargo-binstall /usr/local/cargo/bin
-RUN cargo binstall cargo-leptos -y
-RUN apt-get update -y && apt-get install -y --no-install-recommends clang
-RUN rustup target add wasm32-unknown-unknown
-
 WORKDIR /app
+
+# Copy the tools from the cacher stage
+COPY --from=cacher /usr/local/rustup /usr/local/rustup
+COPY --from=cacher /usr/local/cargo /usr/local/cargo
+
+RUN apt-get update && apt-get install -y --no-install-recommends clang
+
+# Bring in the cooked dependencies
 COPY --from=cacher /app/target target
 COPY . .
+
+# Build the Leptos app
 RUN cargo leptos build --release -vv
 
+# Runtime
 FROM debian:bookworm-slim AS runtime
-
 WORKDIR /app
-RUN apt-get update -y \
-  && apt-get install -y --no-install-recommends openssl ca-certificates \
-  && apt-get autoremove -y \
-  && apt-get clean -y \
-  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Copy binaries and assets
 COPY --from=builder /app/target/release/web /app/
 COPY --from=builder /app/target/site /app/site
 COPY --from=builder /app/Cargo.toml /app/
 
 EXPOSE 8080
-
 CMD ["/app/web"]
