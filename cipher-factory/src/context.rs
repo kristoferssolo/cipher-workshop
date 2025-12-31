@@ -55,9 +55,10 @@ impl CipherContext {
     }
 
     fn process_cbc(&self) -> CipherResult<String> {
-        let iv = self.iv.as_ref().ok_or_else(|| {
-            CipherError::InvalidPadding("CBC mode requires an IV".into())
-        })?;
+        let iv = self
+            .iv
+            .as_ref()
+            .ok_or_else(|| CipherError::InvalidPadding("CBC mode requires an IV".into()))?;
 
         let cipher = self.algorithm.new_cbc_cipher(&self.key, iv)?;
 
