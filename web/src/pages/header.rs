@@ -37,6 +37,9 @@ pub fn Header() -> impl IntoView {
                 <li>
                     <A href="/aes">"AES"</A>
                 </li>
+                <li>
+                    <A href="/aes-cbc">"AES-CBC"</A>
+                </li>
             </ul>
             <button class="theme-toggle" on:click=toggle_theme>
                 {move || theme.get().to_string()}

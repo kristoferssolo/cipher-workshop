@@ -1,5 +1,6 @@
 use crate::pages::{
-    aes::AesPage, des::DesPage, footer::Footer, header::Header, home::Home, not_found::NotFound,
+    aes::AesPage, aes_cbc::AesCbcPage, des::DesPage, footer::Footer, header::Header, home::Home,
+    not_found::NotFound,
 };
 use leptos::prelude::*;
 use leptos_meta::{MetaTags, Stylesheet, Title, provide_meta_context};
@@ -49,6 +50,7 @@ pub fn App() -> impl IntoView {
                         <Route path=StaticSegment("/") view=Home />
                         <Route path=StaticSegment("/des") view=DesPage />
                         <Route path=StaticSegment("/aes") view=AesPage />
+                        <Route path=StaticSegment("/aes-cbc") view=AesCbcPage />
                     </Routes>
                 </main>
                 <Footer />

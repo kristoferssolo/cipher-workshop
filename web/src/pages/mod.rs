@@ -1,4 +1,5 @@
 pub mod aes;
+pub mod aes_cbc;
 pub mod des;
 pub mod footer;
 pub mod header;
