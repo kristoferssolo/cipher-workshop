@@ -5,7 +5,9 @@ fn generate_random_bytes(len: usize) -> Option<Vec<u8>> {
     let window = web_sys::window()?;
     let crypto = window.crypto().ok()?;
     let array = Uint8Array::new_with_length(len as u32);
-    crypto.get_random_values_with_array_buffer_view(&array).ok()?;
+    crypto
+        .get_random_values_with_array_buffer_view(&array)
+        .ok()?;
     Some(array.to_vec())
 }
 

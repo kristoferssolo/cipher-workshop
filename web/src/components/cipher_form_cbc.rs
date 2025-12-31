@@ -105,7 +105,8 @@ pub fn CipherFormCbc() -> impl IntoView {
                             OutputFormat::Text => {
                                 String::from_utf8(plaintext).unwrap_or_else(|_| {
                                     set_error_msg(
-                                        "Output contains invalid UTF-8. Try Hex format.".to_string(),
+                                        "Output contains invalid UTF-8. Try Hex format."
+                                            .to_string(),
                                     );
                                     String::new()
                                 })
@@ -242,8 +243,7 @@ fn parse_hex_string(s: &str) -> Result<Vec<u8>, String> {
     (0..s.len())
         .step_by(2)
         .map(|i| {
-            u8::from_str_radix(&s[i..i + 2], 16)
-                .map_err(|_| format!("Invalid hex at position {i}"))
+            u8::from_str_radix(&s[i..i + 2], 16).map_err(|_| format!("Invalid hex at position {i}"))
         })
         .collect()
 }
@@ -275,16 +275,28 @@ fn download_bytes(bytes: &[u8], filename: &str) {
     let array = Array::new();
     array.push(&uint8_array.buffer());
 
-    let blob = Blob::new_with_u8_array_sequence(&array).unwrap();
-    let url = Url::create_object_url_with_blob(&blob).unwrap();
+    let Some(blob) = Blob::new_with_u8_array_sequence(&array).ok() else {
+        return;
+    };
+    let Some(url) = Url::create_object_url_with_blob(&blob).ok() else {
+        return;
+    };
 
-    let document = web_sys::window().unwrap().document().unwrap();
-    let a = document.create_element("a").unwrap();
-    a.set_attribute("href", &url).unwrap();
-    a.set_attribute("download", filename).unwrap();
+    let Some(window) = web_sys::window() else {
+        return;
+    };
+    let Some(document) = window.document() else {
+        return;
+    };
+    let Some(a) = document.create_element("a").ok() else {
+        return;
+    };
+
+    let _ = a.set_attribute("href", &url);
+    let _ = a.set_attribute("download", filename);
 
     let a: web_sys::HtmlElement = a.unchecked_into();
     a.click();
 
-    Url::revoke_object_url(&url).unwrap();
+    let _ = Url::revoke_object_url(&url);
 }

@@ -12,7 +12,9 @@ fn generate_random_bytes(len: usize) -> Option<Vec<u8>> {
     let window = web_sys::window()?;
     let crypto = window.crypto().ok()?;
     let array = Uint8Array::new_with_length(len as u32);
-    crypto.get_random_values_with_array_buffer_view(&array).ok()?;
+    crypto
+        .get_random_values_with_array_buffer_view(&array)
+        .ok()?;
     Some(array.to_vec())
 }
 
@@ -21,10 +23,7 @@ fn bytes_to_hex(bytes: &[u8]) -> String {
 }
 
 #[component]
-pub fn IvInput(
-    iv_input: ReadSignal<String>,
-    set_iv_input: WriteSignal<String>,
-) -> AnyView {
+pub fn IvInput(iv_input: ReadSignal<String>, set_iv_input: WriteSignal<String>) -> AnyView {
     let handle_hex_input = move |ev| {
         let val = event_target_value(&ev);
         let cleaned = clean_hex_input(val);
