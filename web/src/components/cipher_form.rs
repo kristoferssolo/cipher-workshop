@@ -35,7 +35,14 @@ pub fn CipherForm(algorithm: Algorithm) -> impl IntoView {
             raw_text
         };
 
-        let context = CipherContext::new(algorithm, mode.get(), key, final_text, output_fmt.get());
+        let context = CipherContext::new(
+            algorithm,
+            mode.get(),
+            key,
+            None,
+            final_text,
+            output_fmt.get(),
+        );
         match context.process() {
             Ok(out) => set_output(out),
             Err(e) => set_error_msg(e.to_string()),
