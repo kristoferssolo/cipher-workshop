@@ -79,11 +79,15 @@ impl Algorithm {
 
     /// Decrypts data using CBC mode and removes PKCS#7 padding.
     ///
+    /// The IV is extracted from the first 16 bytes of the ciphertext.
+    ///
     /// # Errors
     ///
     /// Returns `CipherError` if decryption fails or padding is invalid.
-    pub fn decrypt_cbc(&self, key: &str, iv: &str, ciphertext: &[u8]) -> CipherResult<Vec<u8>> {
-        let cipher = self.new_cbc_cipher(key, iv)?;
+    pub fn decrypt_cbc(&self, key: &str, ciphertext: &[u8]) -> CipherResult<Vec<u8>> {
+        // IV is embedded in ciphertext, use dummy IV for cipher construction
+        let dummy_iv = "0x00000000000000000000000000000000";
+        let cipher = self.new_cbc_cipher(key, dummy_iv)?;
         cipher.decrypt(ciphertext)
     }
 

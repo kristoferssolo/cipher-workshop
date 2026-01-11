@@ -44,13 +44,19 @@ impl AesCbc {
 
     /// Encrypts plaintext using CBC mode with PKCS#7 padding.
     ///
+    /// The output format is: `[16-byte IV][ciphertext...]`
+    ///
     /// # Errors
     ///
     /// Returns `CipherError` if encryption fails.
     #[allow(clippy::missing_panics_doc)]
     pub fn encrypt(&self, plaintext: &[u8]) -> CipherResult<Vec<u8>> {
         let padded = pkcs7_pad(plaintext, BLOCK_SIZE);
-        let mut ciphertext = Vec::with_capacity(padded.len());
+        let mut output = Vec::with_capacity(BLOCK_SIZE + padded.len());
+
+        // Prepend IV to output
+        output.extend_from_slice(&self.iv.to_be_bytes());
+
         let mut prev_block = self.iv.to_block();
 
         for chunk in padded.chunks_exact(BLOCK_SIZE) {
@@ -58,30 +64,36 @@ impl AesCbc {
             let plain_block = Block128::from_be_bytes(chunk.try_into().expect("exact chunk size"));
             let xored = plain_block ^ prev_block.as_u128();
             let encrypted = self.aes.encrypt_block(xored);
-            ciphertext.extend_from_slice(&encrypted.to_be_bytes());
+            output.extend_from_slice(&encrypted.to_be_bytes());
             prev_block = encrypted;
         }
 
-        Ok(ciphertext)
+        Ok(output)
     }
 
     /// Decrypts ciphertext using CBC mode and removes PKCS#7 padding.
     ///
+    /// Expects input format: `[16-byte IV][ciphertext...]`
+    /// The IV is extracted from the input; the IV stored in `self` is ignored.
+    ///
     /// # Errors
     ///
-    /// Returns `CipherError::InvalidBlockSize` if ciphertext length is not a multiple of 16.
+    /// Returns `CipherError::InvalidBlockSize` if input length is not a multiple of 16
+    /// or is less than 32 bytes (IV + at least one block).
     /// Returns `CipherError::InvalidPadding` if padding is invalid.
     #[allow(clippy::missing_panics_doc)]
-    pub fn decrypt(&self, ciphertext: &[u8]) -> CipherResult<Vec<u8>> {
-        if ciphertext.is_empty() || !ciphertext.len().is_multiple_of(BLOCK_SIZE) {
-            return Err(CipherError::invalid_block_size(
-                BLOCK_SIZE,
-                ciphertext.len(),
-            ));
+    pub fn decrypt(&self, data: &[u8]) -> CipherResult<Vec<u8>> {
+        // Need at least IV (16 bytes) + one ciphertext block (16 bytes)
+        if data.len() < BLOCK_SIZE * 2 || !data.len().is_multiple_of(BLOCK_SIZE) {
+            return Err(CipherError::invalid_block_size(BLOCK_SIZE, data.len()));
         }
 
+        // Extract IV from first block
+        let iv = Iv::from_be_bytes(data[..BLOCK_SIZE].try_into().expect("exact IV size"));
+        let ciphertext = &data[BLOCK_SIZE..];
+
         let mut plaintext = Vec::with_capacity(ciphertext.len());
-        let mut prev_block = self.iv.to_block();
+        let mut prev_block = iv.to_block();
 
         for chunk in ciphertext.chunks_exact(BLOCK_SIZE) {
             // chunks_exact guarantees exactly BLOCK_SIZE bytes
@@ -123,8 +135,8 @@ mod tests {
 
         let plaintext = [0u8; 16];
         let ciphertext = assert_ok!(cipher.encrypt(&plaintext));
-        // Padded to 32 bytes (16 data + 16 padding)
-        assert_eq!(ciphertext.len(), 32);
+        // 16 IV + 16 data + 16 padding = 48 bytes
+        assert_eq!(ciphertext.len(), 48);
 
         let decrypted = assert_ok!(cipher.decrypt(&ciphertext));
         assert_eq!(decrypted, plaintext);

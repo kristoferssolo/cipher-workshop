@@ -47,13 +47,16 @@ pub fn CipherFormCbc() -> AnyView {
             return;
         }
 
-        if iv.is_empty() {
-            set_error_msg("Please enter an initialization vector (IV).".to_string());
-            return;
-        }
-
-        // Format IV with 0x prefix (key keeps user format, IV is always hex)
-        let formatted_iv = format!("0x{iv}");
+        // IV is only required for encryption (it's embedded in ciphertext for decryption)
+        let formatted_iv = if mode.get() == OperationMode::Encrypt {
+            if iv.is_empty() {
+                set_error_msg("Please enter an initialization vector (IV).".to_string());
+                return;
+            }
+            format!("0x{iv}")
+        } else {
+            String::new()
+        };
 
         // Get input data
         let input_data = match input_mode.get() {
@@ -97,29 +100,24 @@ pub fn CipherFormCbc() -> AnyView {
                     Err(e) => set_error_msg(e.to_string()),
                 }
             }
-            OperationMode::Decrypt => {
-                match Algorithm::AesCbc.decrypt_cbc(&key, &formatted_iv, &input_data) {
-                    Ok(plaintext) => {
-                        set_output_bytes(Some(plaintext.clone()));
-                        let formatted = match output_fmt.get() {
-                            OutputFormat::Text => {
-                                String::from_utf8(plaintext).unwrap_or_else(|_| {
-                                    set_error_msg(
-                                        "Output contains invalid UTF-8. Try Hex format."
-                                            .to_string(),
-                                    );
-                                    String::new()
-                                })
-                            }
-                            OutputFormat::Hex => bytes_to_hex(&plaintext),
-                            OutputFormat::Binary => bytes_to_binary(&plaintext),
-                            OutputFormat::Octal => bytes_to_octal(&plaintext),
-                        };
-                        set_output(formatted);
-                    }
-                    Err(e) => set_error_msg(e.to_string()),
+            OperationMode::Decrypt => match Algorithm::AesCbc.decrypt_cbc(&key, &input_data) {
+                Ok(plaintext) => {
+                    set_output_bytes(Some(plaintext.clone()));
+                    let formatted = match output_fmt.get() {
+                        OutputFormat::Text => String::from_utf8(plaintext).unwrap_or_else(|_| {
+                            set_error_msg(
+                                "Output contains invalid UTF-8. Try Hex format.".to_string(),
+                            );
+                            String::new()
+                        }),
+                        OutputFormat::Hex => bytes_to_hex(&plaintext),
+                        OutputFormat::Binary => bytes_to_binary(&plaintext),
+                        OutputFormat::Octal => bytes_to_octal(&plaintext),
+                    };
+                    set_output(formatted);
                 }
-            }
+                Err(e) => set_error_msg(e.to_string()),
+            },
         }
     };
 
@@ -164,7 +162,13 @@ pub fn CipherFormCbc() -> AnyView {
                 update_output=update_output
             />
             <KeyInput key_input=key_input set_key_input=set_key_input key_size=KeySize::Aes128 />
-            <IvInput iv_input=iv_input set_iv_input=set_iv_input />
+            {move || {
+                if mode.get() == OperationMode::Encrypt {
+                    view! { <IvInput iv_input=iv_input set_iv_input=set_iv_input /> }.into_any()
+                } else {
+                    view! { <span></span> }.into_any()
+                }
+            }}
 
             <FileTextInput
                 input_mode=input_mode

@@ -33,9 +33,10 @@ fn nist_single_block_encrypt() {
 
     let ciphertext = assert_ok!(cipher.encrypt(&plaintext));
 
-    // Result includes PKCS#7 padding (16 bytes padding for aligned input)
-    assert_eq!(ciphertext.len(), 32);
-    assert_eq!(&ciphertext[..16], &expected);
+    // 16 IV + 16 block + 16 padding = 48 bytes
+    assert_eq!(ciphertext.len(), 48);
+    // First 16 bytes are IV, next 16 are the ciphertext
+    assert_eq!(&ciphertext[16..32], &expected);
 }
 
 #[test]
@@ -68,10 +69,10 @@ fn nist_multi_block_encrypt() {
 
     let ciphertext = assert_ok!(cipher.encrypt(&plaintext));
 
-    // Result includes padding (64 + 16 = 80 bytes)
-    assert_eq!(ciphertext.len(), 80);
-    // First 3 blocks should match NIST vectors exactly
-    assert_eq!(&ciphertext[..48], &expected[..48]);
+    // 16 IV + 64 blocks + 16 padding = 96 bytes
+    assert_eq!(ciphertext.len(), 96);
+    // First 16 bytes are IV, then ciphertext blocks
+    assert_eq!(&ciphertext[16..64], &expected[..48]);
 }
 
 #[test]
@@ -94,8 +95,8 @@ fn empty_plaintext() {
     let cipher = AesCbc::new(NIST_KEY, Iv::new(NIST_IV));
 
     let ciphertext = assert_ok!(cipher.encrypt(&[]));
-    // Empty input gets full block of padding
-    assert_eq!(ciphertext.len(), 16);
+    // 16 IV + 16 padding = 32 bytes
+    assert_eq!(ciphertext.len(), 32);
 
     let decrypted = assert_ok!(cipher.decrypt(&ciphertext));
     assert!(decrypted.is_empty());
