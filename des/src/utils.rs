@@ -8,7 +8,7 @@
 /// - `input_bits` - Number of meaningful bits in the input (1-64)
 /// - `output_bits` - Number of bits in the output (1-64)
 /// - `position_table` - Table of 1-based positions (1 to `input_bits`) where each output bit comes from.
-///   The table should have `output_bits` entries. For each entry i (0-based), `position_table`[i] indicates
+///   The table should have `output_bits` entries. For each entry i (0-based), `position_table\[i\]` indicates
 ///   which input bit (1-based) should go to the i-th output bit position (from MSB to LSB).
 #[must_use]
 pub fn permutate(

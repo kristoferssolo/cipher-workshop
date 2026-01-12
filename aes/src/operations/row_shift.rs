@@ -1,6 +1,6 @@
 use crate::Block128;
 
-/// Cyclically shifts rows of the state matrix ([`ShiftRows`] step).
+/// Cyclically shifts rows of the state matrix (`ShiftRows` step).
 ///
 /// Row 0: no shift, Row 1: shift left 1, Row 2: shift left 2, Row 3: shift left 3.
 /// This provides diffusion across the columns.

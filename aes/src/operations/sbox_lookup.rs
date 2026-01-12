@@ -1,6 +1,6 @@
 use crate::{Block128, sbox::SboxLookup};
 
-/// Substitutes each byte using the AES S-box ([`SubBytes`] step).
+/// Substitutes each byte using the AES S-box (`SubBytes` step).
 ///
 /// Provides non-linearity by replacing each byte with its S-box lookup value.
 /// The S-box is derived from the multiplicative inverse in GF(2^8).
