@@ -17,8 +17,7 @@ pub fn Home() -> impl IntoView {
                     <p>
                         "A legacy algorithm from the 1970s. While historically significant, "
                         "it is now considered insecure due to its short 56-bit key length. "
-                        "This tool uses " <strong>"DES-ECB"</strong>
-                        " mode for educational purposes."
+                        "This tool provides DES block encryption for educational purposes."
                     </p>
                 </div>
 
@@ -26,7 +25,7 @@ pub fn Home() -> impl IntoView {
                     <h3>"AES (Advanced Encryption Standard)"</h3>
                     <p>
                         "The modern standard for symmetric encryption. This tool offers "
-                        <strong>"AES-128-ECB"</strong> " for single-block operations and "
+                        <strong>"AES-128"</strong> " for single-block operations and "
                         <strong>"AES-128-CBC"</strong> " for encrypting arbitrary data with "
                         "PKCS#7 padding."
                     </p>

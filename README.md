@@ -4,8 +4,8 @@ A Rust workspace containing implementations of various cipher algorithms, along 
 
 ## Features
 
-- **AES Implementation**: AES-128 in ECB and CBC modes
-- **DES Implementation**: DES in ECB mode
+- **AES Implementation**: AES-128 block cipher and CBC mode
+- **DES Implementation**: DES block cipher
 - **Command-Line Interface**: Encrypt and decrypt messages or files using the supported ciphers
 - **Web Interface**: Browser-based encryption with file upload, drag-and-drop, and random key/IV generation
 
@@ -13,10 +13,10 @@ A Rust workspace containing implementations of various cipher algorithms, along 
 
 The `cipher-workshop` workspace is organized into the following crates:
 
-- `aes`: Implementation of the AES cipher (ECB and CBC modes)
+- `aes`: Implementation of the AES cipher (block cipher and CBC mode)
 - `cipher-core`: Core traits and types for ciphers
 - `cipher-factory`: A factory for creating cipher contexts
-- `cli`: A command-line interface for the ciphers
+- `crypt`: A command-line interface for the ciphers
 - `des`: Implementation of the DES cipher
 - `web`: A web interface built with Leptos
 
@@ -44,34 +44,34 @@ cargo build
 
 The CLI allows you to encrypt and decrypt messages or files using the supported ciphers.
 
-#### AES (ECB mode)
+#### AES (block mode)
 
 ```bash
 # Encrypt a message
-cargo run --bin cli -- encrypt -a aes -k 0x2B7E151628AED2A6ABF7158809CF4F3C "Hello World"
+cargo run --bin crypt -- encrypt -a aes -k 0x2B7E151628AED2A6ABF7158809CF4F3C "Hello World"
 
 # Decrypt a message
-cargo run --bin cli -- decrypt -a aes -k 0x2B7E151628AED2A6ABF7158809CF4F3C 0x...
+cargo run --bin crypt -- decrypt -a aes -k 0x2B7E151628AED2A6ABF7158809CF4F3C 0x...
 ```
 
 #### AES-CBC (with IV)
 
 ```bash
 # Encrypt a file
-cargo run --bin cli -- encrypt -a aes-cbc -k 0x2B7E151628AED2A6ABF7158809CF4F3C --iv 0x000102030405060708090A0B0C0D0E0F -i input.txt -o output.enc
+cargo run --bin crypt -- encrypt -a aes-cbc -k 0x2B7E151628AED2A6ABF7158809CF4F3C --iv 0x000102030405060708090A0B0C0D0E0F -i input.txt -o output.enc
 
 # Decrypt a file
-cargo run --bin cli -- decrypt -a aes-cbc -k 0x2B7E151628AED2A6ABF7158809CF4F3C --iv 0x000102030405060708090A0B0C0D0E0F -i output.enc -o decrypted.txt
+cargo run --bin crypt -- decrypt -a aes-cbc -k 0x2B7E151628AED2A6ABF7158809CF4F3C --iv 0x000102030405060708090A0B0C0D0E0F -i output.enc -o decrypted.txt
 ```
 
 #### DES
 
 ```bash
 # Encrypt a message
-cargo run --bin cli -- encrypt -a des -k 0x133457799BBCDFF1 "Hello"
+cargo run --bin crypt -- encrypt -a des -k 0x133457799BBCDFF1 "Hello"
 
 # Decrypt a message
-cargo run --bin cli -- decrypt -a des -k 0x133457799BBCDFF1 0x...
+cargo run --bin crypt -- decrypt -a des -k 0x133457799BBCDFF1 0x...
 ```
 
 ### Web Interface

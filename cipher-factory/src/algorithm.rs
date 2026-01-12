@@ -21,7 +21,7 @@ impl Algorithm {
         matches!(self, Self::AesCbc)
     }
 
-    /// Creates a new ECB-mode cipher instance for the specified algorithm.
+    /// Creates a new block cipher instance for the specified algorithm.
     ///
     /// Parses the key string and instantiates either DES or AES based on the algorithm choice.
     /// The key format depends on the algorithm:
@@ -111,7 +111,7 @@ impl Algorithm {
     /// - The text length doesn't match the block size
     /// - The text contains invalid characters for the given format
     ///
-    /// Parses text for ECB-mode algorithms (single block).
+    /// Parses text for block cipher algorithms (single block).
     ///
     /// For CBC mode, use raw bytes directly instead of this method.
     pub fn parse_text(&self, text: &str) -> Result<Vec<u8>, BlockError> {
