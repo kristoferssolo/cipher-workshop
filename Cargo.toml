@@ -1,5 +1,5 @@
 [workspace]
-members = ["aes", "cipher-core", "cipher-factory", "cli", "des", "web"]
+members = ["aes", "cipher-core", "cipher-factory", "crypt", "des", "web"]
 resolver = "2"
 
 [workspace.package]
