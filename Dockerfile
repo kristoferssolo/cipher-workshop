@@ -33,13 +33,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends clang
 COPY --from=cacher /app/target target
 COPY . .
 
-# Build the Leptos app
-RUN cargo leptos build --release -vv
+# Build the Leptos app and precompress static assets for HTTP delivery.
+RUN cargo leptos build --release --precompress -vv\
+    && strip --strip-unneeded /app/target/release/web \
+    && find /app/target/site -type f \( -name '*.png.br' -o -name '*.png.gz' \) -delete
 
 # Runtime
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates\
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy binaries and assets
