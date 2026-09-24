@@ -99,7 +99,7 @@ fn empty_plaintext() {
     assert_eq!(ciphertext.len(), 32);
 
     let decrypted = assert_ok!(cipher.decrypt(&ciphertext));
-    assert!(decrypted.is_empty());
+    assert_eq!(decrypted, Vec::<u8>::new());
 }
 
 #[test]

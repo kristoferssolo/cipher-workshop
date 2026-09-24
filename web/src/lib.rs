@@ -1,3 +1,6 @@
+// Leptos derives component builder types with an uninhabited enum internally.
+#![allow(clippy::empty_enums)]
+
 pub mod app;
 pub mod components;
 pub mod pages;

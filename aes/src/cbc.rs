@@ -59,9 +59,8 @@ impl AesCbc {
 
         let mut prev_block = self.iv.to_block();
 
-        for chunk in padded.chunks_exact(BLOCK_SIZE) {
-            // chunks_exact guarantees exactly BLOCK_SIZE bytes
-            let plain_block = Block128::from_be_bytes(chunk.try_into().expect("exact chunk size"));
+        for chunk in padded.as_chunks::<BLOCK_SIZE>().0 {
+            let plain_block = Block128::from_be_bytes(*chunk);
             let xored = plain_block ^ prev_block.as_u128();
             let encrypted = self.aes.encrypt_block(xored);
             output.extend_from_slice(&encrypted.to_be_bytes());
@@ -95,9 +94,8 @@ impl AesCbc {
         let mut plaintext = Vec::with_capacity(ciphertext.len());
         let mut prev_block = iv.to_block();
 
-        for chunk in ciphertext.chunks_exact(BLOCK_SIZE) {
-            // chunks_exact guarantees exactly BLOCK_SIZE bytes
-            let cipher_block = Block128::from_be_bytes(chunk.try_into().expect("exact chunk size"));
+        for chunk in ciphertext.as_chunks::<BLOCK_SIZE>().0 {
+            let cipher_block = Block128::from_be_bytes(*chunk);
             let decrypted = self.aes.decrypt_block(cipher_block);
             let plain_block = decrypted ^ prev_block.as_u128();
             plaintext.extend_from_slice(&plain_block.to_be_bytes());

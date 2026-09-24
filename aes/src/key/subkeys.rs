@@ -7,7 +7,7 @@ use std::{
     fmt::Debug,
     iter::Rev,
     ops::Index,
-    slice::{ChunksExact, Iter, IterMut},
+    slice::{Iter, IterMut},
 };
 
 const SUBKEY_COUNT: usize = 44;
@@ -61,13 +61,13 @@ impl Subkeys {
     #[inline]
     #[must_use]
     pub fn chunks(&self) -> SubkeyChunks<'_> {
-        SubkeyChunks(self.0.chunks_exact(4))
+        SubkeyChunks(self.0.as_chunks::<4>().0.iter())
     }
 
     #[inline]
     #[must_use]
     pub fn chunks_rev(&self) -> SubkeyChunksRev<'_> {
-        SubkeyChunksRev(self.0.chunks_exact(4).rev())
+        SubkeyChunksRev(self.0.as_chunks::<4>().0.iter().rev())
     }
 }
 
@@ -100,25 +100,21 @@ impl Debug for Subkeys {
     }
 }
 
-pub struct SubkeyChunks<'a>(ChunksExact<'a, Subkey>);
+pub struct SubkeyChunks<'a>(Iter<'a, [Subkey; 4]>);
 
 impl<'a> Iterator for SubkeyChunks<'a> {
     type Item = &'a [Subkey; 4];
     fn next(&mut self) -> Option<Self::Item> {
-        self.0
-            .next()
-            .map(|chunk| <&[Subkey; 4]>::try_from(chunk).expect("4 chunk subkeys"))
+        self.0.next()
     }
 }
 
-pub struct SubkeyChunksRev<'a>(Rev<ChunksExact<'a, Subkey>>);
+pub struct SubkeyChunksRev<'a>(Rev<Iter<'a, [Subkey; 4]>>);
 
 impl<'a> Iterator for SubkeyChunksRev<'a> {
     type Item = &'a [Subkey; 4];
     fn next(&mut self) -> Option<Self::Item> {
-        self.0
-            .next()
-            .map(|chunk| <&[Subkey; 4]>::try_from(chunk).expect("4 chunk subkeys"))
+        self.0.next()
     }
 }
 
