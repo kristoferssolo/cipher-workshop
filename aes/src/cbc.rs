@@ -4,7 +4,7 @@
 //! (using XOR) before encryption. The first block uses an Initialization Vector (IV).
 
 use crate::{Aes, Block128, Iv, key::Key};
-use cipher_core::{CipherError, CipherResult, pkcs7_pad, pkcs7_unpad};
+use cipher_core::{CipherError, CipherResult, pkcs7_unpad};
 
 const BLOCK_SIZE: usize = 16;
 
@@ -51,21 +51,31 @@ impl AesCbc {
     /// Returns `CipherError` if encryption fails.
     #[allow(clippy::missing_panics_doc)]
     pub fn encrypt(&self, plaintext: &[u8]) -> CipherResult<Vec<u8>> {
-        let padded = pkcs7_pad(plaintext, BLOCK_SIZE);
-        let mut output = Vec::with_capacity(BLOCK_SIZE + padded.len());
+        let padding_len = BLOCK_SIZE - (plaintext.len() % BLOCK_SIZE);
+        let padded_len = plaintext.len() + padding_len;
+        let mut output = Vec::with_capacity(BLOCK_SIZE + padded_len);
 
         // Prepend IV to output
         output.extend_from_slice(&self.iv.to_be_bytes());
 
         let mut prev_block = self.iv.to_block();
 
-        for chunk in padded.as_chunks::<BLOCK_SIZE>().0 {
+        let (full_blocks, remainder) = plaintext.as_chunks::<BLOCK_SIZE>();
+        for chunk in full_blocks {
             let plain_block = Block128::from_be_bytes(*chunk);
             let xored = plain_block ^ prev_block.as_u128();
             let encrypted = self.aes.encrypt_block(xored);
             output.extend_from_slice(&encrypted.to_be_bytes());
             prev_block = encrypted;
         }
+
+        #[allow(clippy::cast_possible_truncation)]
+        let pad_byte = padding_len as u8;
+        let mut final_block = [pad_byte; BLOCK_SIZE];
+        final_block[..remainder.len()].copy_from_slice(remainder);
+        let plain_block = Block128::from_be_bytes(final_block);
+        let encrypted = self.aes.encrypt_block(plain_block ^ prev_block.as_u128());
+        output.extend_from_slice(&encrypted.to_be_bytes());
 
         Ok(output)
     }
@@ -102,8 +112,9 @@ impl AesCbc {
             prev_block = cipher_block;
         }
 
-        let unpadded = pkcs7_unpad(&plaintext, BLOCK_SIZE)?;
-        Ok(unpadded.to_vec())
+        let unpadded_len = pkcs7_unpad(&plaintext, BLOCK_SIZE)?.len();
+        plaintext.truncate(unpadded_len);
+        Ok(plaintext)
     }
 }
 
