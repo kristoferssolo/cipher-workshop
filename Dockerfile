@@ -41,8 +41,6 @@ RUN cargo leptos build --release --precompress -vv\
 # Runtime
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates\
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy binaries and assets
 COPY --from=builder /app/target/release/web /app/

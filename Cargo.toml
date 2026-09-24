@@ -28,6 +28,12 @@ unwrap_used = "warn"
 
 [profile.release]
 lto = "thin"
+opt-level = "s"
+
+[profile.release.package.aes]
+opt-level = 3
+
+[profile.release.package.des]
 opt-level = 3
 
 # Defines a size-optimized profile for the WASM bundle in release mode
